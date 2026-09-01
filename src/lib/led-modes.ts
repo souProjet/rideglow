@@ -24,13 +24,13 @@ export type LedFrame = {
   speed: number;
   /** Lean angle, -1 (full left) .. 1 (full right). */
   lean: number;
-  /** The colour the visitor picked, used by solid and breathe. */
+  /** The color the visitor picked, used by solid and breathe. */
   base: Color;
 };
 
 export type LedMode = {
   id: LedModeId;
-  /** Hex fed to `--glow`, so the whole interface takes the mode's colour. */
+  /** Hex fed to `--glow`, so the whole interface takes the mode's color. */
   accent: string;
   /** Signature-kit only: needs the GPS + IMU module. */
   requiresGps: boolean;
@@ -104,7 +104,10 @@ export const LED_MODES: readonly LedMode[] = [
     accent: "#e8eaed",
     requiresGps: false,
     shade(out, _i, _n, _strip, f) {
-      out.copy(f.base);
+      // Normalised to the same lightness ceiling as the animated modes, so
+      // switching to solid does not double the brightness of the whole bike.
+      f.base.getHSL(hsl);
+      out.setHSL(hsl.h, hsl.s, Math.min(hsl.l, 0.45));
     },
   },
 ] as const;
@@ -117,7 +120,7 @@ export function isLedModeId(value: unknown): value is LedModeId {
   return typeof value === "string" && LED_MODES.some((m) => m.id === value);
 }
 
-/** Presets for the solid/breathe colour picker. */
+/** Presets for the solid/breathe color picker. */
 export const PRESET_COLORS = [
   "#3be8ff",
   "#7c5cff",

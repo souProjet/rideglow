@@ -1,9 +1,10 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Scene } from "@/components/three/scene";
 import { useAudioSource } from "@/components/three/use-audio";
+import { getBikeModel } from "@/lib/bike-models";
 import { getBike } from "@/lib/catalog";
 import { useConfigurator } from "@/lib/store";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -11,14 +12,22 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 type Props = {
   labels: { loading: string; fallback: string; micDenied: string };
   className?: string;
+  /** Hero only: push the bike right so the headline gets clean ground. */
+  frameBias?: number;
+  /** Camera presets and any other chrome laid over the canvas, top right. */
+  overlay?: ReactNode;
 };
 
-export function Showroom({ labels, className }: Props) {
+export function Showroom({ labels, className, frameBias = 0, overlay }: Props) {
   const bikeId = useConfigurator((s) => s.bikeId);
   const modeId = useConfigurator((s) => s.modeId);
   const color = useConfigurator((s) => s.color);
   const micEnabled = useConfigurator((s) => s.micEnabled);
   const setMicEnabled = useConfigurator((s) => s.setMicEnabled);
+  const view = useConfigurator((s) => s.view);
+  const viewEpoch = useConfigurator((s) => s.viewEpoch);
+  const autoRotate = useConfigurator((s) => s.autoRotate);
+  const setAutoRotate = useConfigurator((s) => s.setAutoRotate);
 
   const reducedMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,6 +40,8 @@ export function Showroom({ labels, className }: Props) {
     setMicDenied(true);
     setMicEnabled(false);
   }, [setMicEnabled]);
+
+  const onGrab = useCallback(() => setAutoRotate(false), [setAutoRotate]);
 
   const audio = useAudioSource(micEnabled, onDenied);
 
@@ -59,6 +70,7 @@ export function Showroom({ labels, className }: Props) {
   }, []);
 
   const family = getBike(bikeId);
+  const credit = family ? getBikeModel(family.id) : undefined;
 
   if (webglOk === false || !family) {
     return (
@@ -71,7 +83,10 @@ export function Showroom({ labels, className }: Props) {
   }
 
   return (
-    <div ref={containerRef} className={`relative ${className ?? ""}`}>
+    // The caller owns positioning: adding `relative` here would beat the
+    // caller's `absolute inset-0` in the cascade and collapse the canvas to
+    // its 300x150 default.
+    <div ref={containerRef} className={className ?? "relative"}>
       {webglOk !== null && (
         <Canvas
           dpr={[1, 1.75]}
@@ -86,10 +101,17 @@ export function Showroom({ labels, className }: Props) {
               color={color}
               audio={audio}
               reducedMotion={reducedMotion}
+              frameBias={frameBias}
+              view={view}
+              viewEpoch={viewEpoch}
+              autoRotate={autoRotate}
+              onGrab={onGrab}
             />
           </Suspense>
         </Canvas>
       )}
+
+      {overlay && <div className="absolute top-4 right-4 z-10">{overlay}</div>}
 
       <div
         aria-hidden={ready}
@@ -99,6 +121,20 @@ export function Showroom({ labels, className }: Props) {
       >
         <p className="type-eyebrow animate-pulse">{labels.loading}</p>
       </div>
+
+      {/* CC-BY is only satisfied if the credit ships with the render, so it
+          lives next to the canvas rather than in a legal page nobody opens. */}
+      {credit && (
+        <p className="absolute right-3 bottom-2 text-[10px] text-chalk-dim/70">
+          <a className="hover:text-chalk" href={credit.creditUrl} rel="noreferrer" target="_blank">
+            {credit.credit}
+          </a>{" "}
+          &middot;{" "}
+          <a className="hover:text-chalk" href={credit.licenseUrl} rel="noreferrer" target="_blank">
+            {credit.license}
+          </a>
+        </p>
+      )}
 
       {micDenied && (
         <p role="status" className="absolute inset-x-0 bottom-3 text-center text-xs text-chalk-dim">

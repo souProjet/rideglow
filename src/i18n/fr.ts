@@ -61,6 +61,25 @@ export const fr = {
       },
     },
   },
+  showroom: {
+    viewLabel: "Angle de vue",
+    views: {
+      threeQuarter: "Trois-quarts",
+      profile: "Profil",
+      front: "Face",
+      rear: "Arrière",
+    },
+    autoRotate: "Rotation auto",
+    drag: "Fais glisser pour tourner autour de la moto",
+  },
+  build: {
+    title: "Ta configuration",
+    leds: "LED adressables",
+    length: "de bande",
+    runs: "brins à poser",
+    ignoresColor:
+      "Ce mode écrit ses propres couleurs. La teinte de base sert au mode Uni et Respiration.",
+  },
   bikes: {
     title: "Ta moto",
     lede: "Choisis la géométrie la plus proche. Elle fixe la longueur des bandes livrées.",

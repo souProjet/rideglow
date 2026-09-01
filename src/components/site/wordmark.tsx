@@ -2,7 +2,7 @@ import Link from "next/link";
 
 /**
  * The logo is a six-LED strip: the product's own vocabulary, and it inherits
- * `--glow`, so the wordmark changes colour with the mode the visitor picked.
+ * `--glow`, so the wordmark changes color with the mode the visitor picked.
  */
 export function Wordmark({ href }: { href: string }) {
   return (

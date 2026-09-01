@@ -4,12 +4,15 @@
    RideGlow design tokens
 
    The product is an addressable RGB strip, so the interface deliberately has
-   NO fixed accent colour. `--glow` is rewritten at runtime from whatever the
+   NO fixed accent color. `--glow` is rewritten at runtime from whatever the
    visitor has selected in the 3D showroom: buttons, rules, focus rings and the
    floor reflection all follow the bike. The page is the product demo.
    --------------------------------------------------------------------------- */
 
 :root {
+  /* The header is fixed, so every full-height shell has to subtract it. */
+  --header-h: 4rem;
+
   --ink: #0a0b0d;
   --ink-raised: #131519;
   --ink-sunk: #06070880;

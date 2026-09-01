@@ -14,7 +14,7 @@ export type BikeFamily = {
   id: BikeId;
   /** Drives the procedural silhouette in the showroom. */
   silhouette: "roadster" | "sport" | "trail" | "custom";
-  /** Strip runs the kit ships for this geometry, in millimetres. */
+  /** Strip runs the kit ships for this geometry, in millimeters. */
   stripRuns: { label: string; mm: number }[];
   /** Total addressable LEDs at 60 LED/m, rounded to the strip's cut marks. */
   ledCount: number;
@@ -105,6 +105,40 @@ export const ADDONS: readonly Addon[] = [
   { id: "extension", priceCents: 1900 },
   { id: "harness", priceCents: 2400 },
 ] as const;
+
+/** Strip density, fixed by the WS2812B-2020 tape the kit ships. */
+export const LEDS_PER_METER = 60;
+
+/** What the `extension` add-on adds to the run, in millimeters. */
+export const EXTENSION_MM = 1000;
+
+export type BuildSummary = {
+  /** Addressable LEDs the visitor ends up with. */
+  ledCount: number;
+  /** Total strip length across every run, in millimeters. */
+  totalMm: number;
+  /** Runs the kit ships for this geometry, extension included. */
+  runs: number;
+};
+
+/**
+ * What the configured kit actually amounts to, in the two units a buyer can
+ * check against their own bike. Derived here rather than in the component so
+ * the showroom, the funnel and the order confirmation cannot disagree.
+ */
+export function summarizeBuild(selection: CartSelection): BuildSummary {
+  const bike = getBike(selection.bikeId);
+  if (!bike) throw new Error(`Unknown bike: ${selection.bikeId}`);
+
+  const baseMm = bike.stripRuns.reduce((sum, run) => sum + run.mm, 0);
+  const extended = selection.addonIds.includes("extension");
+
+  return {
+    ledCount: bike.ledCount + (extended ? (EXTENSION_MM / 1000) * LEDS_PER_METER : 0),
+    totalMm: baseMm + (extended ? EXTENSION_MM : 0),
+    runs: bike.stripRuns.length + (extended ? 1 : 0),
+  };
+}
 
 export const SHIPPING_CENTS = 690;
 /** Free shipping above this subtotal, in minor units. */

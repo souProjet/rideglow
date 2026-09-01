@@ -5,10 +5,10 @@ import { getLedMode } from "@/lib/led-modes";
 import { useConfigurator } from "@/lib/store";
 
 /**
- * Repaints the whole interface in the colour of the selected lighting mode.
+ * Repaints the whole interface in the color of the selected lighting mode.
  *
  * It follows the *mode*, not the live average of the strip: in sound mode the
- * average swings on every kick, and an accent colour that strobes with the bass
+ * average swings on every kick, and an accent color that strobes with the bass
  * is unreadable and hostile to anyone photosensitive.
  */
 export function GlowSync() {

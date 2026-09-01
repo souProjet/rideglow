@@ -59,6 +59,24 @@ export const en: Dictionary = {
       },
     },
   },
+  showroom: {
+    viewLabel: "Camera angle",
+    views: {
+      threeQuarter: "Three-quarter",
+      profile: "Side",
+      front: "Front",
+      rear: "Rear",
+    },
+    autoRotate: "Auto-rotate",
+    drag: "Drag to walk around the bike",
+  },
+  build: {
+    title: "Your build",
+    leds: "addressable LEDs",
+    length: "of strip",
+    runs: "runs to fit",
+    ignoresColor: "This mode writes its own colors. The base shade drives Solid and Breathe.",
+  },
   bikes: {
     title: "Your bike",
     lede: "Pick the closest geometry. It sets the strip lengths we ship.",
@@ -145,10 +163,10 @@ export const en: Dictionary = {
     title: "In the box",
     lede: "Nothing to solder, nothing to drill. One screwdriver and one evening.",
     rows: {
-      density: { label: "Density", value: "60 LEDs per metre, WS2812B-2020" },
+      density: { label: "Density", value: "60 LEDs per meter, WS2812B-2020" },
       power: { label: "Power", value: "12 V, 2.4 A maximum" },
       sealing: { label: "Sealing", value: "IP67, strips and controller" },
-      controller: { label: "Controller", value: "62 x 38 x 14 mm, aluminium" },
+      controller: { label: "Controller", value: "62 x 38 x 14 mm, aluminum" },
       link: { label: "Link", value: "Bluetooth LE 5.3, 30 m range" },
       app: { label: "App", value: "iOS 16 and later, Android 10 and later" },
       mounting: { label: "Mounting", value: "3M VHB adhesive, ties included" },
@@ -182,7 +200,7 @@ export const en: Dictionary = {
       },
       weather: {
         q: "Does it survive rain and pressure washing?",
-        a: "Strips and controller are IP67. Tested with a pressure washer at thirty centimetres and fifty bar.",
+        a: "Strips and controller are IP67. Tested with a pressure washer at thirty centimeters and fifty bar.",
       },
       battery: {
         q: "Will it flatten my battery?",

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ModeSwitch } from "@/components/mode-switch";
 import { Faq, FinalCta, Install, SpecSheet } from "@/components/sections";
+import { SiteFooter } from "@/components/site/footer";
 import { ShowroomCanvas } from "@/components/three/showroom-loader";
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/i18n";
@@ -16,6 +17,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section id="modes" className="grain relative min-h-[100svh] overflow-hidden">
         <ShowroomCanvas
           className="absolute inset-0"
+          frameBias={0.16}
           labels={{
             loading: t.hero.loading,
             fallback: t.hero.fallback,
@@ -60,6 +62,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <Install t={t} />
       <Faq t={t} />
       <FinalCta t={t} locale={locale} />
+      <SiteFooter locale={locale} t={t} />
     </>
   );
 }

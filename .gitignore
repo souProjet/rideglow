@@ -14,3 +14,7 @@ next-env.d.ts
 npm-debug.log*
 .vercel
 coverage/
+
+# Written by `next dev` on every start; not part of the source.
+AGENTS.md
+CLAUDE.md

@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import "@/app/globals.css";
 import { GlowSync } from "@/components/glow-sync";
-import { SiteFooter } from "@/components/site/footer";
 import { SiteHeader } from "@/components/site/header";
 import { getDictionary } from "@/i18n";
 import { isLocale, LOCALES } from "@/i18n/config";
@@ -66,8 +65,10 @@ export default async function LocaleLayout({
         </a>
         <GlowSync />
         <SiteHeader locale={locale} t={t} />
+        {/* The footer is per page, not in the layout: the configurator is a
+            full-height app shell, and a footer parked under it would put a
+            scrollbar on a screen that is supposed to have none. */}
         <main id="content">{children}</main>
-        <SiteFooter locale={locale} t={t} />
       </body>
     </html>
   );

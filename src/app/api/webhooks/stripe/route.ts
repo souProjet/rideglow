@@ -4,7 +4,7 @@ import { insertOrder, markRefundedByIntent } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
 
 /** Signature verification needs the exact bytes Stripe signed, so this route
- *  must never be statically optimised or run on the edge cache. */
+ *  must never be statically optimized or run on the edge cache. */
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {

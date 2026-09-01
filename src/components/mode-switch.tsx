@@ -19,7 +19,10 @@ export function ModeSwitch({ t }: { t: Dictionary }) {
 
   const active = LED_MODES.find((m) => m.id === modeId) ?? LED_MODES[0];
   if (!active) return null;
-  const showPalette = modeId === "solid" || modeId === "breathe";
+  // Chase, sound and GPS write their own colors, but hiding the palette on
+  // those modes made it look like the control had disappeared. It stays put and
+  // says why it is idle instead.
+  const usesColor = modeId === "solid" || modeId === "breathe";
 
   return (
     <div className="space-y-5">
@@ -91,24 +94,31 @@ export function ModeSwitch({ t }: { t: Dictionary }) {
         )}
       </div>
 
-      {showPalette && (
-        <fieldset className="flex items-center gap-3">
-          <legend className="sr-only">{t.modes.colorLabel}</legend>
-          {PRESET_COLORS.map((preset) => (
-            <button
-              key={preset}
-              type="button"
-              onClick={() => setColor(preset)}
-              aria-label={preset}
-              aria-pressed={color.toLowerCase() === preset}
-              className={`size-6 rounded-full border transition-transform duration-200 hover:scale-110 ${
-                color.toLowerCase() === preset ? "border-chalk scale-110" : "border-line"
-              }`}
-              style={{ backgroundColor: preset }}
-            />
-          ))}
-        </fieldset>
-      )}
+      <fieldset
+        className={`flex flex-wrap items-center gap-x-3 gap-y-2 transition-opacity duration-300 ${
+          usesColor ? "" : "opacity-45"
+        }`}
+      >
+        <legend className="sr-only">{t.modes.colorLabel}</legend>
+        {PRESET_COLORS.map((preset) => (
+          <button
+            key={preset}
+            type="button"
+            onClick={() => setColor(preset)}
+            aria-label={preset}
+            aria-pressed={color.toLowerCase() === preset}
+            className={`size-6 rounded-full border transition-transform duration-200 hover:scale-110 ${
+              color.toLowerCase() === preset ? "scale-110 border-chalk" : "border-line"
+            }`}
+            style={{ backgroundColor: preset }}
+          />
+        ))}
+        {!usesColor && (
+          <span className="max-w-xs text-[0.6875rem] leading-snug text-chalk-dim">
+            {t.build.ignoresColor}
+          </span>
+        )}
+      </fieldset>
     </div>
   );
 }
