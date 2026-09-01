@@ -10,6 +10,26 @@
 
 export type Currency = "eur";
 
+/**
+ * Where we ship. ISO 3166-1 alpha-2, and the same list the terms of sale state:
+ * Stripe refuses an address outside it, so a country added to one and not the
+ * other is a contradiction a buyer meets at the payment step.
+ */
+export const SHIPPING_COUNTRIES = [
+  "FR",
+  "BE",
+  "LU",
+  "CH",
+  "DE",
+  "ES",
+  "IT",
+  "NL",
+  "PT",
+  "AT",
+  "IE",
+  "GB",
+] as const;
+
 export type BikeFamily = {
   id: BikeId;
   /** Drives the procedural silhouette in the showroom. */

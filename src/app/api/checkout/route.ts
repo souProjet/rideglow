@@ -2,14 +2,19 @@ import { type NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getDictionary } from "@/i18n";
 import { isLocale } from "@/i18n/config";
-import { getAddon, getBike, getKit, isAddonId, isBikeId, isKitId, priceCart } from "@/lib/catalog";
+import {
+  getAddon,
+  getBike,
+  getKit,
+  isAddonId,
+  isBikeId,
+  isKitId,
+  priceCart,
+  SHIPPING_COUNTRIES,
+} from "@/lib/catalog";
 import { getStripe } from "@/lib/stripe";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
-/** Countries we currently ship to. Anything else has to email us first. */
-const SHIPPING_COUNTRIES: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[] =
-  ["FR", "BE", "LU", "CH", "DE", "ES", "IT", "NL", "PT", "AT", "IE", "GB"];
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -49,7 +54,7 @@ export async function POST(request: NextRequest) {
         unit_amount: kit.priceCents,
         product_data: {
           name: `RideGlow ${t.kits.items[kit.id].name}`,
-          description: `${t.bikes.items[bike.id].name} — ${bike.ledCount} ${t.bikes.ledCount}`,
+          description: `${t.bikes.items[bike.id].name} (${bike.ledCount} ${t.bikes.ledCount})`,
         },
       },
     },
@@ -74,7 +79,9 @@ export async function POST(request: NextRequest) {
       line_items: lineItems,
       success_url: `${SITE_URL}/${locale}/commande/succes?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/${locale}/commande/annule`,
-      shipping_address_collection: { allowed_countries: SHIPPING_COUNTRIES },
+      // Spread rather than cast: this makes Stripe's own country union check the
+      // list, so a typo in the catalog fails the build instead of the payment.
+      shipping_address_collection: { allowed_countries: [...SHIPPING_COUNTRIES] },
       phone_number_collection: { enabled: true },
       shipping_options: [
         {

@@ -4,7 +4,7 @@ import "@/app/globals.css";
 import { archivo, martianMono } from "@/lib/fonts";
 
 export const metadata: Metadata = {
-  title: "RideGlow — Back-office",
+  title: "RideGlow: back-office",
   robots: { index: false, follow: false },
 };
 

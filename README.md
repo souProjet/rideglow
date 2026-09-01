@@ -13,7 +13,7 @@ and `src/i18n/*` before launch.
 |---|---|---|
 | Framework | Next.js 16 (App Router, Turbopack) | Static marketing pages plus the API routes the payment flow needs, in one deploy |
 | 3D | React Three Fiber + drei + postprocessing | Procedural geometry, no asset pipeline yet |
-| Styling | Tailwind CSS 4 (CSS-first) | The accent colour is a CSS variable rewritten at runtime, which `@theme inline` resolves at use time |
+| Styling | Tailwind CSS 4 (CSS-first) | The accent color is a CSS variable rewritten at runtime, which `@theme inline` resolves at use time |
 | State | Zustand, persisted to `sessionStorage` | The configuration survives the Stripe round trip without a cart API |
 | Payments | Stripe hosted Checkout | PCI scope stays with Stripe; the dashboard is the back office |
 | Database | Neon serverless Postgres | One `orders` table, written by the webhook |
@@ -59,8 +59,8 @@ session id, so replays are harmless.
 
 `/admin` lists orders, marks them shipped and records a tracking number. Auth is a
 single password checked in constant time, with an HMAC-signed expiry cookie: there is
-exactly one operator and no roles to model. Everything else — catalog, refunds,
-disputes, invoices, VAT, payouts — lives in the Stripe dashboard.
+exactly one operator and no roles to model. Everything else (catalog, refunds,
+disputes, invoices, VAT, payouts) lives in the Stripe dashboard.
 
 ## Scripts
 
@@ -89,6 +89,8 @@ footer. Keep it that way, and check the rules for any market you add.
 ## Not done yet
 
 - Real motorcycle models. The silhouettes are procedural: see `docs/architecture.md`.
-- `mentions-legales`, `cgv` and `confidentialite` pages linked from the footer.
+- The company facts the legal pages need. `src/lib/legal.ts` marks each missing
+  one `TBD`, the pages render it as a visible gap, and `LEGAL_COMPLETE` keeps
+  all three out of the search index until every field is filled.
 - `public/` assets: favicon, OG image.
 - Stock tracking. The webhook records orders but nothing decrements inventory.

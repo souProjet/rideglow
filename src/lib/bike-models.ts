@@ -11,11 +11,11 @@ import type { BikeId } from "@/lib/catalog";
  *
  * Licensing is part of the asset, not a footnote. `credit` is rendered under
  * the canvas whenever the model is on screen, which is what CC-BY requires;
- * a model with no usable commercial licence does not go in this file.
+ * a model with no usable commercial license does not go in this file.
  *
  * Avoid manufacturer-branded bikes. A Honda or a Harley model can carry a
- * perfectly clean CC-BY licence and still be trade dress on a page that sells
- * an aftermarket product: that is a separate risk from the model's licence,
+ * perfectly clean CC-BY license and still be trade dress on a page that sells
+ * an aftermarket product: that is a separate risk from the model's license,
  * and it is the reason the catalogue sells frame families rather than models.
  */
 export type BikeModel = {

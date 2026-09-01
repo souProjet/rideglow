@@ -1,13 +1,14 @@
 import Link from "next/link";
 import type { Dictionary } from "@/i18n";
 import type { Locale } from "@/i18n/config";
+import { COMPANY } from "@/lib/legal";
 
 export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
   const links = [
     { href: `/${locale}/mentions-legales`, label: t.footer.legalNotice },
     { href: `/${locale}/cgv`, label: t.footer.terms },
     { href: `/${locale}/confidentialite`, label: t.footer.privacy },
-    { href: "mailto:contact@rideglow.example", label: t.footer.contact },
+    { href: `mailto:${COMPANY.email}`, label: t.footer.contact },
   ];
 
   return (
@@ -33,7 +34,7 @@ export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
 
       <div className="mx-auto max-w-[86rem] border-t border-line/60 px-5 py-6 sm:px-8">
         <p className="text-[0.6875rem] uppercase tracking-[0.14em] text-chalk-dim" data-numeric>
-          © {new Date().getFullYear()} RideGlow — {t.footer.rights}
+          © {new Date().getFullYear()} RideGlow. {t.footer.rights}
         </p>
       </div>
     </footer>

@@ -91,7 +91,7 @@ export default async function AdminPage() {
                   {order.id.slice(-12).toUpperCase()}
                 </p>
                 <p className="text-[0.8125rem] text-chalk-dim">
-                  {order.email ?? "—"} · {order.bike_id} / {order.kit_id}
+                  {order.email ?? "-"} · {order.bike_id} / {order.kit_id}
                   {order.addon_ids.length > 0 && ` + ${order.addon_ids.join(", ")}`}
                 </p>
                 <p className="text-[0.75rem] text-chalk-dim" data-numeric>

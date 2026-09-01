@@ -18,6 +18,39 @@ export function formatPrice(cents: number, locale: Locale): string {
   return formatter.format(cents / 100);
 }
 
+const dates = new Map<string, Intl.DateTimeFormat>();
+
+/** ISO date in, long localized date out. Used for the legal pages' revision. */
+export function formatDate(iso: string, locale: Locale): string {
+  let formatter = dates.get(locale);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+    dates.set(locale, formatter);
+  }
+  return formatter.format(new Date(`${iso}T00:00:00Z`));
+}
+
+const regions = new Map<string, Intl.DisplayNames>();
+
+/**
+ * ISO 3166-1 alpha-2 in, country name in the reader's language out. The terms
+ * of sale and the privacy notice both list countries, and translating twelve
+ * of them by hand in two dictionaries is twenty-four chances to drift.
+ */
+export function formatCountry(code: string, locale: Locale): string {
+  let names = regions.get(locale);
+  if (!names) {
+    names = new Intl.DisplayNames([locale === "fr" ? "fr-FR" : "en-GB"], { type: "region" });
+    regions.set(locale, names);
+  }
+  return names.of(code) ?? code;
+}
+
 const decimals = new Map<string, Intl.NumberFormat>();
 
 /** Plain grouped integer: 1300 becomes "1 300" in French, "1,300" in English. */

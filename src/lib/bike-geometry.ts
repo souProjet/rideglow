@@ -6,7 +6,7 @@ import type { BikeFamily } from "@/lib/catalog";
  *
  * These are parameters, not a mesh: one generator with per-family numbers gives
  * four silhouettes that read as different bikes without four hand-modeled
- * assets. Swap this module for GLB loading when the real models land — the LED
+ * assets. Swap this module for GLB loading when the real models land: the LED
  * rig only consumes `stripRuns`, so nothing else has to change.
  */
 

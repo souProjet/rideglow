@@ -4,7 +4,7 @@
  */
 export const fr = {
   meta: {
-    title: "RideGlow — Kit LED RGB adressable pour moto",
+    title: "RideGlow: kit LED RGB adressable pour moto",
     description:
       "Kit LED RGB adressable pour moto. Chaque LED se pilote seule : réactive au son, à la vitesse et à l'angle. Pose en une soirée, sans percer.",
     ogAlt: "Une moto éclairée par des bandes LED adressables dans un showroom sombre",
@@ -233,6 +233,209 @@ export const fr = {
     title: "Paiement interrompu",
     body: "Rien n'a été débité et ta configuration est toujours là.",
     resume: "Reprendre ma configuration",
+  },
+  legal: {
+    updated: "Dernière mise à jour",
+    gap: "à compléter",
+    identity: "Identité de l'éditeur",
+    host: "Hébergeur",
+    processorTable: "Sous-traitants",
+    fields: {
+      legalName: "Raison sociale",
+      legalForm: "Forme juridique",
+      capital: "Capital social",
+      address: "Siège social",
+      registry: "RCS",
+      siret: "SIRET",
+      vat: "TVA intracommunautaire",
+      publisher: "Directeur de la publication",
+      phone: "Téléphone",
+      email: "E-mail",
+      mediator: "Médiateur de la consommation",
+      mediatorUrl: "Site du médiateur",
+      role: "Rôle",
+      company: "Société",
+      country: "Pays",
+    },
+    processors: {
+      stripe: "Paiement et encaissement",
+      vercel: "Hébergement du site",
+      neon: "Base de données des commandes",
+      resend: "E-mail d'expédition",
+    },
+    notice: {
+      title: "Mentions légales",
+      intro:
+        "Informations exigées par la loi pour la confiance dans l'économie numérique du 21 juin 2004.",
+      publisher: {
+        title: "Éditeur",
+        body: [
+          "Le site RideGlow est édité par la société identifiée ci-dessous, qui en assure la publication et la vente des produits présentés.",
+        ],
+      },
+      hosting: {
+        title: "Hébergement",
+        body: [
+          "Le site est hébergé par le prestataire indiqué ci-dessous. Les commandes sont enregistrées dans une base de données Postgres gérée par Neon et les paiements sont traités par Stripe.",
+        ],
+      },
+      ip: {
+        title: "Propriété intellectuelle",
+        body: [
+          "Les textes, la charte graphique, les visuels, les modèles tridimensionnels et le code du site sont protégés. Toute reproduction ou réutilisation, totale ou partielle, sans accord écrit préalable est interdite.",
+          "Les noms de constructeurs de motos ne sont pas utilisés sur le site : les kits sont proposés par famille de géométrie, pas par modèle de marque.",
+        ],
+      },
+      liability: {
+        title: "Responsabilité",
+        body: [
+          "Les rendus tridimensionnels du showroom sont des représentations de principe destinées à situer les bandeaux sur une géométrie type. Ils ne constituent pas une reproduction de votre moto et les longueurs livrées sont celles indiquées sur la fiche produit.",
+          "L'éclairage additionnel de couleur est interdit en circulation dans la plupart des pays européens. Le kit est vendu pour un usage sur circuit, en exposition et à l'arrêt. Il vous appartient de vérifier la réglementation applicable là où vous roulez.",
+        ],
+      },
+      data: {
+        title: "Données personnelles",
+        body: [
+          "Le traitement des données liées à une commande est décrit dans la politique de confidentialité.",
+        ],
+      },
+    },
+    terms: {
+      title: "Conditions générales de vente",
+      intro:
+        "Applicables à toute commande passée sur le site. Le fait de commander vaut acceptation des présentes conditions dans leur version en ligne au jour de la commande.",
+      scope: {
+        title: "1. Objet et champ d'application",
+        body: [
+          "Les présentes conditions régissent la vente à distance des kits d'éclairage RideGlow et de leurs accessoires à des acheteurs particuliers résidant dans l'un des pays de livraison listés à l'article 5.",
+          "Elles s'appliquent à l'exclusion de toute autre condition, et prévalent sur toute version antérieure.",
+        ],
+      },
+      products: {
+        title: "2. Produits",
+        body: [
+          "Les caractéristiques essentielles de chaque kit, les longueurs de bandeau et le nombre de LED adressables sont indiqués sur la fiche produit et rappelés dans le récapitulatif avant paiement.",
+          "Les kits sont proposés par famille de géométrie de moto. La compatibilité annoncée porte sur cette géométrie, pas sur un modèle de constructeur identifié.",
+        ],
+      },
+      order: {
+        title: "3. Commande",
+        body: [
+          "La commande se déroule en trois étapes : choix de la moto et du kit, récapitulatif, paiement. Vous pouvez revenir en arrière et corriger votre configuration jusqu'à la validation du paiement.",
+          "La vente est conclue lorsque le paiement est confirmé. Un e-mail récapitulatif est alors envoyé à l'adresse fournie lors du paiement.",
+        ],
+      },
+      price: {
+        title: "4. Prix et paiement",
+        body: [
+          "Les prix sont indiqués en euros toutes taxes comprises. Les frais de livraison sont affichés avant le paiement et offerts au-delà du montant de commande indiqué dans le récapitulatif.",
+          "Le paiement est traité par Stripe. Le numéro de carte n'est ni vu ni conservé par RideGlow : il est saisi sur une page hébergée par Stripe, avec authentification forte du porteur lorsque la banque l'exige.",
+          "Les produits restent la propriété de RideGlow jusqu'au paiement complet du prix.",
+        ],
+      },
+      delivery: {
+        title: "5. Livraison",
+        body: [
+          "Les commandes sont expédiées sous 48 heures ouvrées. Le délai de livraison estimé est de 2 à 5 jours ouvrés après expédition, selon la destination.",
+          "Le numéro de suivi est envoyé par e-mail au départ du colis. Le risque de perte ou de dommage est transféré au moment où vous prenez physiquement possession du colis.",
+          "Nous livrons dans les pays suivants :",
+        ],
+      },
+      withdrawal: {
+        title: "6. Rétractation et retours",
+        body: [
+          "Vous disposez de quatorze jours à compter de la réception pour exercer votre droit de rétractation, sans avoir à motiver votre décision, conformément à l'article L221-18 du code de la consommation.",
+          "RideGlow porte ce délai à trente jours et prend à sa charge les frais de retour. Le kit doit être renvoyé complet, dans un état permettant sa remise en vente ; un bandeau coupé ou collé de façon définitive n'est plus repris.",
+          "Le remboursement intervient sous cinq jours à compter de la réception du retour, par le même moyen de paiement que celui utilisé pour la commande.",
+          "Pour exercer ce droit, écrivez à l'adresse de contact en indiquant votre référence de commande.",
+        ],
+      },
+      warranty: {
+        title: "7. Garanties légales",
+        body: [
+          "Tous les produits bénéficient de la garantie légale de conformité (articles L217-3 et suivants du code de la consommation) et de la garantie contre les vices cachés (articles 1641 et suivants du code civil). Ces garanties sont dues indépendamment de toute garantie commerciale.",
+          "Au titre de la garantie légale de conformité, vous disposez de deux ans à compter de la délivrance du bien, pouvez choisir entre la réparation et le remplacement, et êtes dispensé de rapporter la preuve du défaut pendant les vingt-quatre mois qui suivent la délivrance.",
+          "Une demande au titre de la garantie s'ouvre par un e-mail à l'adresse de contact, avec la référence de commande et une description du défaut.",
+        ],
+      },
+      compliance: {
+        title: "8. Usage et conformité",
+        body: [
+          "Le kit est un éclairage additionnel décoratif vendu pour un usage sur circuit, en exposition et à l'arrêt. L'éclairage de couleur non homologué est interdit en circulation dans la plupart des pays européens.",
+          "La pose relève de votre responsabilité et peut affecter la conformité de votre véhicule ainsi que la position de votre assureur. Vérifiez la réglementation et votre contrat d'assurance avant toute utilisation sur la voie publique.",
+        ],
+      },
+      disputes: {
+        title: "9. Réclamation et médiation",
+        body: [
+          "Toute réclamation est à adresser à l'adresse de contact. Si la réponse ne vous satisfait pas, vous pouvez recourir gratuitement à un médiateur de la consommation, conformément à l'article L612-1 du code de la consommation.",
+        ],
+      },
+      law: {
+        title: "10. Droit applicable",
+        body: [
+          "Les présentes conditions sont soumises au droit français. En tant que consommateur, vous conservez le bénéfice des dispositions impératives de la loi du pays où vous résidez.",
+        ],
+      },
+    },
+    privacy: {
+      title: "Politique de confidentialité",
+      intro:
+        "Ce que nous collectons quand vous commandez, pourquoi, combien de temps, et comment reprendre la main.",
+      controller: {
+        title: "Responsable de traitement",
+        body: [
+          "Le responsable du traitement est la société éditrice du site, identifiée dans les mentions légales. Toute demande relative à vos données se fait par e-mail à l'adresse de contact.",
+        ],
+      },
+      collected: {
+        title: "Données collectées",
+        body: [
+          "Une commande génère : votre adresse e-mail, votre nom et votre adresse de livraison, votre numéro de téléphone, le montant payé et la configuration choisie (moto, kit, options).",
+          "Ces informations sont saisies sur la page de paiement Stripe, puis transmises au site pour préparer le colis. Nous ne recevons jamais votre numéro de carte.",
+          "La navigation sur le showroom et le configurateur ne crée pas de compte et ne fait l'objet d'aucune mesure d'audience.",
+        ],
+      },
+      purposes: {
+        title: "Finalités et bases légales",
+        body: [
+          "Exécution du contrat : traiter la commande, expédier le colis, envoyer le suivi, gérer les retours et les garanties.",
+          "Obligation légale : conserver les pièces comptables et les factures.",
+          "Intérêt légitime : sécuriser le paiement et prévenir la fraude, fonction assurée par Stripe.",
+        ],
+      },
+      recipients: {
+        title: "Destinataires",
+        body: [
+          "Vos données ne sont ni vendues ni louées. Elles sont accessibles à l'équipe qui prépare les commandes et aux prestataires suivants, qui agissent sur instruction :",
+        ],
+        transfers:
+          "Les transferts vers les États-Unis sont encadrés par les clauses contractuelles types de la Commission européenne. Le transporteur reçoit en outre les éléments nécessaires à la livraison.",
+      },
+      retention: {
+        title: "Durées de conservation",
+        body: [
+          "Les données de commande et de facturation sont conservées dix ans, au titre des obligations comptables.",
+          "Les coordonnées de livraison sont conservées trois ans après la dernière commande, puis supprimées.",
+          "La configuration en cours reste dans le stockage de session de votre navigateur et disparaît à la fermeture de l'onglet.",
+        ],
+      },
+      cookies: {
+        title: "Cookies et stockage local",
+        body: [
+          "Le site n'utilise ni cookie publicitaire ni outil de mesure d'audience, et n'affiche donc pas de bandeau de consentement.",
+          "Un cookie NEXT_LOCALE mémorise la langue choisie pendant un an. Un cookie de session est posé uniquement lors d'une connexion au back-office. La configuration du kit est gardée dans le stockage de session, côté navigateur, le temps de l'onglet.",
+        ],
+      },
+      rights: {
+        title: "Vos droits",
+        body: [
+          "Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité, ainsi que du droit de définir des directives sur le sort de vos données après votre décès.",
+          "Pour les exercer, écrivez à l'adresse de contact. Nous répondons dans un délai d'un mois.",
+          "Si la réponse ne vous convient pas, vous pouvez saisir la CNIL, 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, ou déposer une plainte sur cnil.fr.",
+        ],
+      },
+    },
   },
   footer: {
     rights: "Tous droits réservés",

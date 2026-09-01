@@ -26,7 +26,7 @@ export async function sendShippingEmail(order: Order): Promise<void> {
   await getResend().emails.send({
     from,
     to: order.email,
-    subject: `Votre kit RideGlow est parti — ${reference}`,
+    subject: `Votre kit RideGlow est parti (${reference})`,
     text: [
       `Bonjour,`,
       ``,
