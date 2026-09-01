@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   RideGlow design tokens
+
+   The product is an addressable RGB strip, so the interface deliberately has
+   NO fixed accent colour. `--glow` is rewritten at runtime from whatever the
+   visitor has selected in the 3D showroom: buttons, rules, focus rings and the
+   floor reflection all follow the bike. The page is the product demo.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ink: #0a0b0d;
+  --ink-raised: #131519;
+  --ink-sunk: #06070880;
+  --line: #262a31;
+  --line-bright: #39404a;
+  --chalk: #e8eaed;
+  --chalk-dim: #8a9099;
+
+  /* Overwritten by the showroom store. Cyan is only the cold-start value. */
+  --glow: #3be8ff;
+  --glow-2: #ff2d9b;
+
+  --glow-soft: color-mix(in oklab, var(--glow) 26%, transparent);
+  --glow-faint: color-mix(in oklab, var(--glow) 10%, transparent);
+  --glow-ink: color-mix(in oklab, var(--glow) 14%, var(--ink));
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-ink-sunk: var(--ink-sunk);
+  --color-line: var(--line);
+  --color-line-bright: var(--line-bright);
+  --color-chalk: var(--chalk);
+  --color-chalk-dim: var(--chalk-dim);
+  --color-glow: var(--glow);
+  --color-glow-2: var(--glow-2);
+  --color-glow-soft: var(--glow-soft);
+  --color-glow-faint: var(--glow-faint);
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, "SF Mono", monospace;
+
+  --radius-card: 4px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    background: var(--ink);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--chalk);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--glow);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--glow);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Workshop-manual voice: numbers are set in the utility face, tabular. */
+  [data-numeric] {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--ink);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border: 3px solid var(--ink);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--line-bright);
+  }
+}
+
+@layer components {
+  /* Display face: Archivo pushed to its wide axis, tight and plated. The
+     motorsport-fairing register, not a neutral heading. */
+  .type-display {
+    font-family: var(--font-sans);
+    font-variation-settings: "wdth" 118;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+
+  .type-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+  }
+
+  .rule-glow {
+    background: linear-gradient(90deg, transparent, var(--glow), transparent);
+  }
+
+  /* The pool of light the bike sits in. Follows --glow like everything else. */
+  .glow-pool {
+    background:
+      radial-gradient(60% 45% at 50% 62%, var(--glow-faint), transparent 70%),
+      radial-gradient(90% 70% at 50% 120%, color-mix(in oklab, var(--glow) 7%, transparent), transparent 60%);
+  }
+
+  /* Asphalt grain. Kept at 3% so it reads as texture, not noise. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
