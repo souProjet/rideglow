@@ -87,13 +87,17 @@ export function ShowroomSet() {
   return (
     <group>
       <mesh geometry={cove} renderOrder={-1}>
-        {/* This color is the knob. The cove has to sit far enough above the
-            page's own black to read as a surface, and far enough below the
-            bike to stay the background: too bright and the hero copy loses the
+        {/* This color is the knob, and it is set against the floor rather than
+            picked in isolation. At #1d222a the wall reached the join around
+            rgb(14,16,20) while the reflective floor met it at rgb(50,60,77),
+            and that step drew a hard horizon across the hero: the cove read as
+            a gradient behind the bike instead of a surface it stands on. The
+            two now arrive at the join at the same value, which is the whole
+            point of a cove. Raise it further and the hero copy loses the dark
             ground it is set on. */}
         <meshStandardMaterial
           vertexColors
-          color="#1d222a"
+          color="#4b5462"
           roughness={0.95}
           metalness={0}
           side={BackSide}
