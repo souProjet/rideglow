@@ -96,6 +96,7 @@ export const en: Dictionary = {
     stripRuns: {
       underTank: "Under the tank",
       underFairing: "Under the fairing",
+      belly: "Under the engine",
       swingarm: "Swingarm",
       fork: "Fork",
       tail: "Tail unit",

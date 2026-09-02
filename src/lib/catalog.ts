@@ -47,41 +47,51 @@ export const BIKES: readonly BikeFamily[] = [
     id: "roadster",
     silhouette: "roadster",
     stripRuns: [
-      { label: "underTank", mm: 620 },
-      { label: "swingarm", mm: 380 },
       { label: "fork", mm: 300 },
+      { label: "underTank", mm: 620 },
+      { label: "belly", mm: 400 },
+      { label: "swingarm", mm: 380 },
+      { label: "tail", mm: 360 },
     ],
-    ledCount: 78,
+    ledCount: 123,
   },
   {
     id: "sport",
     silhouette: "sport",
     stripRuns: [
-      { label: "underFairing", mm: 900 },
-      { label: "swingarm", mm: 420 },
-      { label: "tail", mm: 260 },
+      { label: "fork", mm: 580 },
+      { label: "underFairing", mm: 570 },
+      { label: "belly", mm: 490 },
+      { label: "swingarm", mm: 320 },
+      { label: "tail", mm: 450 },
     ],
-    ledCount: 94,
+    ledCount: 144,
   },
   {
     id: "trail",
     silhouette: "trail",
     stripRuns: [
-      { label: "underTank", mm: 700 },
-      { label: "swingarm", mm: 460 },
-      { label: "fork", mm: 420 },
+      { label: "fork", mm: 610 },
+      { label: "underTank", mm: 580 },
+      { label: "belly", mm: 330 },
+      // A trail bike carries its silencer over the swingarm, so the rear run
+      // goes on the frame rail where it is actually visible.
+      { label: "frameRail", mm: 570 },
+      { label: "tail", mm: 480 },
     ],
-    ledCount: 94,
+    ledCount: 154,
   },
   {
     id: "custom",
     silhouette: "custom",
     stripRuns: [
-      { label: "frameRail", mm: 820 },
-      { label: "rearFender", mm: 340 },
       { label: "fork", mm: 320 },
+      { label: "frameRail", mm: 820 },
+      { label: "belly", mm: 400 },
+      { label: "swingarm", mm: 340 },
+      { label: "rearFender", mm: 340 },
     ],
-    ledCount: 88,
+    ledCount: 133,
   },
 ] as const;
 
@@ -101,7 +111,9 @@ export const KITS: readonly Kit[] = [
   {
     id: "core",
     priceCents: 14900,
-    strips: 4,
+    // Fork, tank and swingarm, both sides. `stripRuns` is one side, so a kit
+    // ships twice the runs it covers: Core takes the first three.
+    strips: 6,
     features: ["app", "sound", "spectrum", "ip67"],
     gps: false,
     recommended: false,
@@ -109,7 +121,8 @@ export const KITS: readonly Kit[] = [
   {
     id: "signature",
     priceCents: 22900,
-    strips: 6,
+    // All five runs, both sides. This is the build the showroom renders.
+    strips: 10,
     features: ["app", "sound", "spectrum", "ip67", "gps", "lean", "indicators"],
     gps: true,
     recommended: true,

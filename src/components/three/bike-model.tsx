@@ -25,7 +25,13 @@ export function BikeModelMesh({ model, silhouette }: { model: BikeModel; silhoue
     root.rotation.y = model.yaw ?? 0;
     root.updateMatrixWorld(true);
 
-    const box = new Box3().setFromObject(root);
+    // `precise` walks the vertices instead of transforming each mesh's own
+    // axis-aligned box. On a model whose parts are modeled straight and then
+    // rotated into place, the cheap path inflates the box by whatever those
+    // rotations sweep: the CB500X came out 6% long and floating 10 cm off the
+    // floor, which is also 10 cm of daylight under every LED run. One pass over
+    // the vertices per model, memoized with the fit.
+    const box = new Box3().setFromObject(root, true);
     const size = box.getSize(new Vector3());
     const center = box.getCenter(new Vector3());
 

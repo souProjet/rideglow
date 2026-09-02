@@ -213,13 +213,46 @@ export type StripRun = {
 };
 
 /**
- * The three runs a kit ships, mirrored left and right. Order matters: run 0 is
- * the front-most, which is what the sound mode assumes when it puts bass at the
- * nose.
+ * One run before mirroring: x, y, and the half-width of the panel it is taped
+ * to at that point, all in fitted meters. The third component is a distance,
+ * not a signed coordinate; `getStripRuns` gives it a sign per side.
  */
-export function getStripRuns(s: Silhouette): StripRun[] {
+export type StripPath = readonly Vec3[];
+
+/**
+ * Runs measured off a real GLB instead of derived from the silhouette.
+ *
+ * The derived runs hang off `getAnchors`, where the tank, the swingarm pivot
+ * and the fork are all solved from the same handful of numbers. That is what
+ * keeps four generated bikes coherent, and it is exactly why it cannot fit a
+ * scanned one: on the SPY, the tank position that puts the swingarm run on the
+ * swingarm pushes the tank run off the back of the bodywork, and no rake
+ * satisfies both. A bike we did not draw gets its three lines measured off its
+ * own mesh: `scratchpad/parts.py` prints per-part bounds in fitted meters, and
+ * these are read straight off that.
+ */
+export function getStripRuns(s: Silhouette, measured?: readonly StripPath[]): StripRun[] {
+  const paths = measured ?? deriveStripPaths(s);
+
+  return paths.flatMap<StripRun>((points) =>
+    ([-1, 1] as const).map((side) => ({
+      side,
+      points: points.map(([x, y, z]) => [x, y, (z + LED_STANDOFF) * side] as Vec3),
+    })),
+  );
+}
+
+/**
+ * The five runs a Signature kit ships, ordered nose to tail. They are spread
+ * across four heights on purpose: fork, tank, belly and swingarm all read as
+ * separate lines from the side, where three runs on the upper half of the bike
+ * read as one broken line.
+ */
+function deriveStripPaths(s: Silhouette): StripPath[] {
   const a = getAnchors(s);
   const [tankX, tankY] = a.tank;
+  const [engineX, engineY] = a.engine;
+  const [tailX, tailY] = a.tail;
   const tl = s.tankLength;
   const th = s.tankHeight;
 
@@ -227,37 +260,14 @@ export function getStripRuns(s: Silhouette): StripRun[] {
   // standoff, so each run lies on its own panel. The masses do not share a
   // width: the tank slab is 1.9 x bodyZ deep and the swingarm 1.7 x its own
   // radius, so one shared offset put some runs inside the bike and others in
-  // mid-air.
-  const tankZ = s.bodyZ * 0.95 + LED_STANDOFF;
-  const swingZ = s.swingarmZ + s.swingarmR * 0.85 + LED_STANDOFF;
-  const forkZ = s.forkZ + s.forkR + LED_STANDOFF;
+  // mid-air. `bike.tsx` is the source of these ratios.
+  const tankZ = s.bodyZ * 0.95;
+  const engineZ = s.bodyZ * 0.85;
+  const tailZ = s.bodyZ * 0.575;
+  const swingZ = s.swingarmZ + s.swingarmR * 0.85;
+  const forkZ = s.forkZ + s.forkR;
 
-  const runs: { points: Vec3[]; z: number }[] = [
-    {
-      // The seam along the bottom of the tank, rising at the back where the
-      // panel meets the seat. Set inside the profile rather than under it: run
-      // below the tank and the strip hangs in the air over the frame spar.
-      points: [
-        [tankX + tl * 0.4, tankY - th * 0.2, 0],
-        [tankX + tl * 0.05, tankY - th * 0.34, 0],
-        [tankX - tl * 0.34, tankY - th * 0.2, 0],
-        [tankX - tl * 0.46, tankY + th * 0.06, 0],
-      ],
-      z: tankZ,
-    },
-    {
-      // Swingarm: axle to pivot, following the arm as it rises.
-      points: [
-        [a.rearAxle[0] + 0.05, a.rearAxle[1] + 0.02, 0],
-        [
-          (a.rearAxle[0] + a.swingarmPivot[0]) / 2,
-          (a.rearAxle[1] + a.swingarmPivot[1]) / 2 + 0.025,
-          0,
-        ],
-        [a.swingarmPivot[0] - 0.03, a.swingarmPivot[1], 0],
-      ],
-      z: swingZ,
-    },
+  const runs: { points: [number, number][]; z: number }[] = [
     {
       // Fork leg: axle up to the yoke, the run that flashes for indicators.
       // Sampled along the leg's own axis, because the leg is raked and a run
@@ -267,17 +277,57 @@ export function getStripRuns(s: Silhouette): StripRun[] {
           [
             a.frontAxle[0] + (a.forkTop[0] - a.frontAxle[0]) * u,
             a.frontAxle[1] + (a.forkTop[1] - a.frontAxle[1]) * u,
-            0,
-          ] as Vec3,
+          ] as [number, number],
       ),
       z: forkZ,
     },
+    {
+      // The seam along the bottom of the tank, rising at the back where the
+      // panel meets the seat. Set inside the profile rather than under it: run
+      // below the tank and the strip hangs in the air over the frame spar.
+      points: [
+        [tankX + tl * 0.4, tankY - th * 0.2],
+        [tankX + tl * 0.05, tankY - th * 0.34],
+        [tankX - tl * 0.34, tankY - th * 0.2],
+        [tankX - tl * 0.46, tankY + th * 0.06],
+      ],
+      z: tankZ,
+    },
+    {
+      // Engine case, low on the flank. Not along the bottom edge: the case is
+      // beveled there, so a run on the edge faces the road and disappears from
+      // every view the configurator offers.
+      points: [
+        [engineX + 0.18, engineY - 0.075],
+        [engineX + 0.09, engineY - 0.145],
+        [engineX - 0.05, engineY - 0.155],
+        [engineX - 0.17, engineY - 0.1],
+      ],
+      z: engineZ,
+    },
+    {
+      // Swingarm: axle to pivot, following the arm as it rises.
+      points: [
+        [a.rearAxle[0] + 0.05, a.rearAxle[1] + 0.02],
+        [
+          (a.rearAxle[0] + a.swingarmPivot[0]) / 2,
+          (a.rearAxle[1] + a.swingarmPivot[1]) / 2 + 0.025,
+        ],
+        [a.swingarmPivot[0] - 0.03, a.swingarmPivot[1]],
+      ],
+      z: swingZ,
+    },
+    {
+      // Tail cowl flank, seat end backwards. Sits on the narrowest slab on the
+      // bike, which is why it gets its own z rather than the tank's.
+      points: [
+        [tailX + 0.14, tailY - 0.05],
+        [tailX - 0.02, tailY - 0.04],
+        [tailX - 0.15, tailY],
+      ],
+      z: tailZ,
+    },
   ];
 
-  return runs.flatMap<StripRun>(({ points, z }) =>
-    ([-1, 1] as const).map((side) => ({
-      side,
-      points: points.map(([x, y]) => [x, y, z * side] as Vec3),
-    })),
-  );
+  return runs.map(({ points, z }) => points.map(([x, y]) => [x, y, z] as Vec3));
 }

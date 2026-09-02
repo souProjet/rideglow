@@ -99,6 +99,7 @@ export const fr = {
     stripRuns: {
       underTank: "Sous le réservoir",
       underFairing: "Sous le carénage",
+      belly: "Sous le moteur",
       swingarm: "Bras oscillant",
       fork: "Fourche",
       tail: "Coque arrière",

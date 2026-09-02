@@ -15,6 +15,7 @@ import {
 } from "three";
 import type { AudioSource } from "@/components/three/use-audio";
 import { getSilhouette, getStripRuns } from "@/lib/bike-geometry";
+import { getBikeModel } from "@/lib/bike-models";
 import type { BikeFamily } from "@/lib/catalog";
 import { getLedMode, type LedFrame, type LedModeId } from "@/lib/led-modes";
 
@@ -30,16 +31,21 @@ import { getLedMode, type LedFrame, type LedModeId } from "@/lib/led-modes";
 
 /** WS2812B-2020 at 60/m: one emitter every 16.7 mm. The scene is meters. */
 const LED_PITCH = 1 / 60;
-/** The silicone channel: 10 mm across, 3 mm proud of the bodywork. */
-const TAPE_W = 0.01;
-const TAPE_T = 0.003;
+/**
+ * The silicone channel: a 10 mm tape in a 14 mm sleeve, 4 mm proud of the
+ * bodywork. The sleeve's outside width is what the viewer sees, and at the
+ * distance the showroom frames the bike a 10 mm line was about two pixels: it
+ * read as wire, not as tape.
+ */
+const TAPE_W = 0.014;
+const TAPE_T = 0.004;
 /** The emitter package: a 5 mm square, near flush with the tape. */
 const CHIP = [0.005, 0.005, 0.0016] as const;
 
 /** Pushes shaded colors past 1.0 so the bloom pass has something to bloom. */
 const HDR_GAIN = 2.1;
 /** The diffuser runs cooler than the chip: it is scattered light, not a source. */
-const DIFFUSER_GAIN = 1.15;
+const DIFFUSER_GAIN = 1.3;
 /** Seconds the strip takes to light up LED by LED when a bike is selected. */
 const IGNITION_SECONDS = 1.15;
 
@@ -113,7 +119,7 @@ function buildHousing(frames: Frame[]): BufferGeometry {
 
 /** The lit face: two vertices per LED, colored from that LED every frame. */
 function buildDiffuser(frames: Frame[]): BufferGeometry {
-  const w = TAPE_W * 0.72;
+  const w = TAPE_W * 0.82;
   const lift = TAPE_T * 0.5 + 0.0006;
   const positions: number[] = [];
   const colors: number[] = [];
@@ -154,7 +160,9 @@ export function LedRig({ family, modeId, color, audio, average, reducedMotion }:
   const ignitionStart = useRef(0);
 
   const layout = useMemo(() => {
-    const runs = getStripRuns(getSilhouette(family.silhouette));
+    // The runs follow whichever bike is actually on screen: the model's own
+    // measurements when there is a GLB, the derived ones otherwise.
+    const runs = getStripRuns(getSilhouette(family.silhouette), getBikeModel(family.id)?.strips);
     let total = 0;
 
     // The count comes from the run's measured length at the tape's real pitch.
@@ -297,7 +305,7 @@ export function LedRig({ family, modeId, color, audio, average, reducedMotion }:
               vertexColors
               toneMapped={false}
               transparent
-              opacity={0.85}
+              opacity={0.95}
               blending={AdditiveBlending}
               depthWrite={false}
               side={DoubleSide}
