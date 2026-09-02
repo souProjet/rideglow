@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { insertOrder, markRefundedByIntent } from "@/lib/db";
+import { markRefundedByIntent, recordPaidOrder } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
 
 /** Signature verification needs the exact bytes Stripe signed, so this route
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         const name = session.collected_information?.shipping_details?.name ?? null;
         const addonIds = (session.metadata?.addonIds ?? "").split(",").filter(Boolean);
 
-        await insertOrder({
+        await recordPaidOrder({
           id: session.id,
           paymentIntent:
             typeof session.payment_intent === "string"
@@ -63,6 +63,9 @@ export async function POST(request: NextRequest) {
       }
 
       case "charge.refunded": {
+        // Nothing goes back on the shelf here: a refund is not a returned
+        // parcel, and the two are usually days apart. The operator adjusts the
+        // count from /admin when the box is actually back.
         const charge = event.data.object;
         const intent = typeof charge.payment_intent === "string" ? charge.payment_intent : null;
         if (intent) await markRefundedByIntent(intent);

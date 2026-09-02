@@ -16,7 +16,7 @@ and `src/i18n/*` before launch.
 | Styling | Tailwind CSS 4 (CSS-first) | The accent color is a CSS variable rewritten at runtime, which `@theme inline` resolves at use time |
 | State | Zustand, persisted to `sessionStorage` | The configuration survives the Stripe round trip without a cart API |
 | Payments | Stripe hosted Checkout | PCI scope stays with Stripe; the dashboard is the back office |
-| Database | Neon serverless Postgres | One `orders` table, written by the webhook |
+| Database | Neon serverless Postgres | An `orders` ledger and a `stock` counter, both written by the webhook |
 | Email | Resend | Order confirmation |
 | Lint + format | Biome | One tool, one pass |
 
@@ -57,10 +57,37 @@ session id, so replays are harmless.
 
 ## Back office
 
-`/admin` lists orders, marks them shipped and records a tracking number. Auth is a
-single password checked in constant time, with an HMAC-signed expiry cookie: there is
-exactly one operator and no roles to model. Everything else (catalog, refunds,
-disputes, invoices, VAT, payouts) lives in the Stripe dashboard.
+`/admin` lists orders, marks them shipped, records a tracking number and holds the
+stock counts. Auth is a single password checked in constant time, with an HMAC-signed
+expiry cookie: there is exactly one operator and no roles to model. Everything else
+(catalog, refunds, disputes, invoices, VAT, payouts) lives in the Stripe dashboard.
+
+## Stock
+
+Counts are held per kit and per add-on, never per (kit, bike): the shelf holds
+controller boxes, tape and looms, and the bike family only decides where the tape is
+cut. The keys are namespaced, `kit:signature` and `addon:remote`, and come from
+`src/lib/catalog.ts`.
+
+A reference with no row in `stock` is untracked and sells without limit, so applying
+the schema changes nothing until a count is entered in `/admin`. Zero is the opposite
+and blocks the sale. Clearing the field goes back to untracked.
+
+The decrement is part of the insert the webhook already ran: one statement, with the
+UPDATE driven by what the INSERT returned, so a Stripe retry conflicts on the session
+id, returns no row and decrements nothing. Nothing is restocked on a refund, since a
+refund is not a returned parcel.
+
+Because it is one statement, `stock` has to exist before the webhook fires: run
+`npm run db:setup` again before deploying, or every order write fails and Stripe
+retries it. `/admin` says so as well, since it reads both tables.
+
+Two deliberate gaps. Nothing is reserved between the moment Stripe opens a session and
+the moment it is paid, so two visitors can buy the last unit within the same minute;
+closing that needs a holds table with an `expires_at` and a `checkout.session.expired`
+handler. And the count can go negative, because a constraint would make the webhook
+500 on an order Stripe has already charged and retry it forever. A negative count is
+an oversell, shown in red in the back office.
 
 ## Scripts
 
@@ -109,4 +136,4 @@ footer. Keep it that way, and check the rules for any market you add.
   all three out of the search index until every field is filled.
 - A `favicon.ico`. Browsers that cannot read `icon.svg` get a 404 instead of a
   fallback; generating a real `.ico` needs an encoder this repo does not have.
-- Stock tracking. The webhook records orders but nothing decrements inventory.
+- Stock holds. See the two gaps under "Stock" above.

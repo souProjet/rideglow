@@ -37,3 +37,21 @@ create table if not exists orders (
 -- needs packing.
 create index if not exists orders_created_at_idx on orders (created_at desc);
 create index if not exists orders_status_idx on orders (status) where status = 'paid';
+
+-- Inventory, one row per sellable unit: 'kit:signature', 'addon:remote'. The
+-- keys come from src/lib/catalog.ts and are not a foreign key to anything: the
+-- catalog is code, and a row left behind by a retired product is harmless.
+--
+-- The table starts empty on purpose. No row means the sku is not tracked and
+-- never blocks a sale, so applying this file changes nothing until the operator
+-- enters a count in /admin. That is not the same as zero, which does block.
+create table if not exists stock (
+  sku        text primary key,
+  on_hand    integer not null,
+  updated_at timestamptz not null default now()
+);
+
+-- Deliberately no `check (on_hand >= 0)`. The decrement runs in the webhook,
+-- after Stripe has taken the money: a constraint violation there would 500 the
+-- handler and Stripe would retry an order that can never be written. A negative
+-- count is the truth about an oversell, and the back office shows it in red.

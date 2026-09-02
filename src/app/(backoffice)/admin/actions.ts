@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkPassword, endSession, isSignedIn, startSession } from "@/lib/admin-auth";
-import { markShipped } from "@/lib/db";
+import { isSku } from "@/lib/catalog";
+import { markShipped, setStock, untrackStock } from "@/lib/db";
 import { sendShippingEmail } from "@/lib/email";
 
 export async function signIn(_prev: string | null, formData: FormData): Promise<string | null> {
@@ -44,6 +45,33 @@ export async function shipOrder(_prev: string | null, formData: FormData): Promi
     return "Expédition enregistrée, mais l'e-mail n'est pas parti.";
   }
 
+  revalidatePath("/admin");
+  return null;
+}
+
+export async function setStockLevel(
+  _prev: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  if (!(await isSignedIn())) return "Session expirée.";
+
+  const sku = formData.get("sku");
+  const raw = formData.get("onHand");
+  if (!isSku(sku) || typeof raw !== "string") return "Référence inconnue.";
+
+  // An empty field is how a reference goes back to untracked, which sells
+  // without limit. Zero is the opposite: it stops the sale.
+  if (raw.trim() === "") {
+    await untrackStock(sku);
+    revalidatePath("/admin");
+    return null;
+  }
+
+  const onHand = Number(raw);
+  // Negatives are accepted so an oversell can be recorded rather than hidden.
+  if (!Number.isInteger(onHand)) return "Quantité invalide.";
+
+  await setStock(sku, onHand);
   revalidatePath("/admin");
   return null;
 }

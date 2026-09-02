@@ -11,7 +11,9 @@ import {
   isKitId,
   priceCart,
   SHIPPING_COUNTRIES,
+  skusForSelection,
 } from "@/lib/catalog";
+import { soldOut, stockLevels } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -41,6 +43,19 @@ export async function POST(request: NextRequest) {
   const kit = getKit(kitId);
   if (!bike || !kit) {
     return NextResponse.json({ error: "Unknown product" }, { status: 400 });
+  }
+
+  // The configurator asks /api/stock for the same answer, but that was fetched
+  // when the page loaded. This is the one that counts.
+  try {
+    const unavailable = soldOut(await stockLevels(), skusForSelection({ kitId, addonIds }));
+    if (unavailable.length > 0) {
+      return NextResponse.json({ error: "Sold out", soldOut: unavailable }, { status: 409 });
+    }
+  } catch (error) {
+    // Fail open: a database we cannot read is not a reason to refuse money.
+    // An oversell shows up as a negative count in the back office.
+    console.error("[checkout] stock check skipped", error);
   }
 
   const t = getDictionary(locale);

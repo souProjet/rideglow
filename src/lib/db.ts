@@ -40,7 +40,16 @@ export async function listOrders(limit = 100): Promise<Order[]> {
   `) as Order[];
 }
 
-export async function insertOrder(order: {
+/**
+ * Writes the order and takes its units off the shelf in one statement.
+ *
+ * The two have to be one statement, not two: Stripe retries webhooks, so the
+ * same session arrives more than once, and a decrement that did not hang off
+ * the insert would run again on every replay. Here the UPDATE is driven by what
+ * the INSERT returned, so a replay conflicts, returns no row, and updates
+ * nothing. A sku with no row in `stock` is untracked and quietly skipped.
+ */
+export async function recordPaidOrder(order: {
   id: string;
   paymentIntent: string | null;
   email: string | null;
@@ -58,23 +67,65 @@ export async function insertOrder(order: {
     country: string | null;
   };
 }): Promise<void> {
-  // Stripe retries webhooks, so the same session can arrive more than once.
-  // The primary key plus DO NOTHING makes replay a no-op.
   await sql()`
-    insert into orders (
-      id, payment_intent, email, amount_total_cents, currency,
-      bike_id, kit_id, addon_ids,
-      shipping_name, shipping_line1, shipping_line2,
-      shipping_postal_code, shipping_city, shipping_country
-    ) values (
-      ${order.id}, ${order.paymentIntent}, ${order.email},
-      ${order.amountTotalCents}, ${order.currency},
-      ${order.bikeId}, ${order.kitId}, ${order.addonIds},
-      ${order.shipping.name}, ${order.shipping.line1}, ${order.shipping.line2},
-      ${order.shipping.postalCode}, ${order.shipping.city}, ${order.shipping.country}
+    with inserted as (
+      insert into orders (
+        id, payment_intent, email, amount_total_cents, currency,
+        bike_id, kit_id, addon_ids,
+        shipping_name, shipping_line1, shipping_line2,
+        shipping_postal_code, shipping_city, shipping_country
+      ) values (
+        ${order.id}, ${order.paymentIntent}, ${order.email},
+        ${order.amountTotalCents}, ${order.currency},
+        ${order.bikeId}, ${order.kitId}, ${order.addonIds},
+        ${order.shipping.name}, ${order.shipping.line1}, ${order.shipping.line2},
+        ${order.shipping.postalCode}, ${order.shipping.city}, ${order.shipping.country}
+      )
+      on conflict (id) do nothing
+      returning kit_id, addon_ids
+    ),
+    taken as (
+      select 'kit:' || kit_id as sku from inserted
+      union all
+      select 'addon:' || unnest(addon_ids) from inserted
     )
-    on conflict (id) do nothing
+    update stock s
+       set on_hand = s.on_hand - 1, updated_at = now()
+      from taken
+     where s.sku = taken.sku
   `;
+}
+
+export type StockRow = { sku: string; on_hand: number; updated_at: string };
+
+/**
+ * Counts for every tracked sku. A sku missing from the map is not tracked,
+ * which is deliberately not the same as zero: untracked sells without limit,
+ * zero is sold out.
+ */
+export async function stockLevels(): Promise<Map<string, number>> {
+  const rows = (await sql()`select sku, on_hand from stock`) as StockRow[];
+  return new Map(rows.map((row) => [row.sku, row.on_hand]));
+}
+
+/** Which of `skus` cannot be sold right now. */
+export function soldOut<T extends string>(levels: Map<string, number>, skus: readonly T[]): T[] {
+  return skus.filter((sku) => {
+    const onHand = levels.get(sku);
+    return onHand !== undefined && onHand <= 0;
+  });
+}
+
+export async function setStock(sku: string, onHand: number): Promise<void> {
+  await sql()`
+    insert into stock (sku, on_hand) values (${sku}, ${onHand})
+    on conflict (sku) do update set on_hand = excluded.on_hand, updated_at = now()
+  `;
+}
+
+/** Back to untracked. The count is gone, so the sku stops blocking sales. */
+export async function untrackStock(sku: string): Promise<void> {
+  await sql()`delete from stock where sku = ${sku}`;
 }
 
 export async function markShipped(id: string, trackingNumber: string): Promise<Order | null> {

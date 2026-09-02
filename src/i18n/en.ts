@@ -107,6 +107,7 @@ export const en: Dictionary = {
     title: "Your kit",
     lede: "Same controller, same app. The difference is strip count and the inertial module.",
     recommended: "Most chosen",
+    soldOut: "Sold out",
     select: "Choose",
     selected: "Selected",
     strips: "strips",
@@ -147,6 +148,7 @@ export const en: Dictionary = {
     pay: "Pay",
     paying: "Opening checkout",
     error: "Checkout could not open. Try again in a moment.",
+    soldOut: "Out of stock right now:",
     reassurance: {
       returns: "30 days to change your mind, return shipping covered",
       warranty: "2-year warranty",

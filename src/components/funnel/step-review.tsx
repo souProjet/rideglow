@@ -8,7 +8,15 @@ import { getBike, getKit } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { useConfigurator, useTotals } from "@/lib/store";
 
-export function StepReview({ t, locale }: { t: Dictionary; locale: Locale }) {
+export function StepReview({
+  t,
+  locale,
+  soldOut,
+}: {
+  t: Dictionary;
+  locale: Locale;
+  soldOut: ReadonlySet<string>;
+}) {
   const bikeId = useConfigurator((s) => s.bikeId);
   const kitId = useConfigurator((s) => s.kitId);
   const addonIds = useConfigurator((s) => s.addonIds);
@@ -17,9 +25,18 @@ export function StepReview({ t, locale }: { t: Dictionary; locale: Locale }) {
 
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
+  // Skus the checkout route refused after this page had already loaded. Merged
+  // with what /api/stock said so both paths render the same warning.
+  const [raced, setRaced] = useState<ReadonlySet<string>>(() => new Set());
 
   const bike = getBike(bikeId);
   const kit = getKit(kitId);
+
+  const blocked = (sku: string) => soldOut.has(sku) || raced.has(sku);
+  const unavailable = [
+    ...(blocked(`kit:${kitId}`) ? [t.kits.items[kitId].name] : []),
+    ...addonIds.filter((id) => blocked(`addon:${id}`)).map((id) => t.kits.addons[id].name),
+  ];
 
   async function pay() {
     setPending(true);
@@ -30,6 +47,15 @@ export function StepReview({ t, locale }: { t: Dictionary; locale: Locale }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ bikeId, kitId, addonIds, locale }),
       });
+      // 409 means something went out of stock while this page was open. It is
+      // not an error to retry, so it gets the availability warning rather than
+      // the payment one.
+      if (response.status === 409) {
+        const body = (await response.json()) as { soldOut?: string[] };
+        setRaced(new Set(body.soldOut ?? []));
+        setPending(false);
+        return;
+      }
       if (!response.ok) throw new Error(`Checkout responded ${response.status}`);
       const { url } = (await response.json()) as { url?: string };
       if (!url) throw new Error("Checkout returned no redirect URL");
@@ -98,7 +124,15 @@ export function StepReview({ t, locale }: { t: Dictionary; locale: Locale }) {
       </div>
 
       <div className="space-y-3">
-        <Button onClick={pay} disabled={pending} className="w-full">
+        {unavailable.length > 0 && (
+          <p
+            role="alert"
+            className="rounded-card border border-line-bright p-3 text-[0.8125rem] text-chalk-dim"
+          >
+            {t.review.soldOut} <span className="text-chalk">{unavailable.join(", ")}</span>
+          </p>
+        )}
+        <Button onClick={pay} disabled={pending || unavailable.length > 0} className="w-full">
           {pending ? t.review.paying : `${t.review.pay} ${formatPrice(totals.totalCents, locale)}`}
         </Button>
         {failed && (

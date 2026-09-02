@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BuildReadout } from "@/components/funnel/build-readout";
 import { Progress } from "@/components/funnel/progress";
 import { StepBike } from "@/components/funnel/step-bike";
@@ -31,12 +31,28 @@ export function Configurator({ t, locale }: { t: Dictionary; locale: Locale }) {
   const next = useConfigurator((s) => s.next);
   const back = useConfigurator((s) => s.back);
   const totals = useTotals();
+  const [soldOut, setSoldOut] = useState<ReadonlySet<string>>(() => new Set());
 
   // The store is created with `skipHydration`, so a returning visitor's saved
   // configuration is pulled in here, after the first render has matched the
   // server's.
   useEffect(() => {
     void useConfigurator.persist.rehydrate();
+  }, []);
+
+  // Availability is the one thing on this page that cannot be prerendered, so
+  // it is fetched once here and read by both steps. A failure leaves the set
+  // empty and the funnel behaves as it did before: the checkout route holds the
+  // authoritative answer either way.
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/stock", { signal: controller.signal })
+      .then((response) => response.json() as Promise<{ soldOut: string[] }>)
+      .then((data) => setSoldOut(new Set(data.soldOut)))
+      .catch(() => {
+        /* advisory only */
+      });
+    return () => controller.abort();
   }, []);
 
   return (
@@ -71,8 +87,8 @@ export function Configurator({ t, locale }: { t: Dictionary; locale: Locale }) {
               <BuildReadout t={t} locale={locale} />
 
               {step === "bike" && <StepBike t={t} />}
-              {step === "kit" && <StepKit t={t} locale={locale} />}
-              {step === "review" && <StepReview t={t} locale={locale} />}
+              {step === "kit" && <StepKit t={t} locale={locale} soldOut={soldOut} />}
+              {step === "review" && <StepReview t={t} locale={locale} soldOut={soldOut} />}
             </div>
           </div>
 

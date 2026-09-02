@@ -110,6 +110,7 @@ export const fr = {
     title: "Ton kit",
     lede: "Même boîtier, même application. La différence est le nombre de bandes et le module inertiel.",
     recommended: "Le plus choisi",
+    soldOut: "Rupture",
     select: "Choisir",
     selected: "Sélectionné",
     strips: "bandes",
@@ -153,6 +154,7 @@ export const fr = {
     pay: "Payer",
     paying: "Ouverture du paiement",
     error: "Le paiement n'a pas pu s'ouvrir. Réessaie dans un instant.",
+    soldOut: "Indisponible pour le moment :",
     reassurance: {
       returns: "30 jours pour changer d'avis, retour offert",
       warranty: "Garantie 2 ans",

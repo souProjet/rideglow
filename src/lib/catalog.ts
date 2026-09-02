@@ -227,3 +227,25 @@ export function isKitId(value: unknown): value is KitId {
 export function isAddonId(value: unknown): value is AddonId {
   return typeof value === "string" && ADDONS.some((a) => a.id === value);
 }
+
+/**
+ * Inventory key. Stock is held per kit and per add-on, never per (kit, bike):
+ * the shelf holds controller boxes, tape and looms, and the bike family only
+ * decides where the tape is cut. The two id spaces are independent, so the
+ * namespace prefix keeps a future kit and add-on sharing a name apart.
+ */
+export type Sku = `kit:${KitId}` | `addon:${AddonId}`;
+
+export const SKUS: readonly Sku[] = [
+  ...KITS.map((kit) => `kit:${kit.id}` as const),
+  ...ADDONS.map((addon) => `addon:${addon.id}` as const),
+];
+
+/** Every unit an order takes off the shelf. Quantities are always one. */
+export function skusForSelection(selection: { kitId: KitId; addonIds: readonly AddonId[] }): Sku[] {
+  return [`kit:${selection.kitId}`, ...selection.addonIds.map((id) => `addon:${id}` as const)];
+}
+
+export function isSku(value: unknown): value is Sku {
+  return typeof value === "string" && SKUS.some((sku) => sku === value);
+}
