@@ -16,7 +16,7 @@ import type { BikeId } from "@/lib/catalog";
  * Avoid manufacturer-branded bikes. A Honda or a Harley model can carry a
  * perfectly clean CC-BY license and still be trade dress on a page that sells
  * an aftermarket product: that is a separate risk from the model's license,
- * and it is the reason the catalogue sells frame families rather than models.
+ * and it is the reason the catalog sells frame families rather than models.
  */
 export type BikeModel = {
   /** Served from /public/models. Keep it under ~3 MB: this is the hero. */

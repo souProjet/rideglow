@@ -9,7 +9,7 @@ while a model is missing.
 
 All four are CC Attribution, downloadable, and carry no manufacturer name or
 trade dress. That second point matters more than it looks: this page sells an
-aftermarket product, and putting a recognisable branded bike in the hero is a
+aftermarket product, and putting a recognizable branded bike in the hero is a
 trademark question the model's own license does not answer.
 
 Triangle counts are deliberately in the 40k-100k band. A 500k-triangle bike
