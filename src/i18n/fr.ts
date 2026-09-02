@@ -7,7 +7,10 @@ export const fr = {
     title: "RideGlow: kit LED RGB adressable pour moto",
     description:
       "Kit LED RGB adressable pour moto. Chaque LED se pilote seule : réactive au son, à la vitesse et à l'angle. Pose en une soirée, sans percer.",
-    ogAlt: "Une moto éclairée par des bandes LED adressables dans un showroom sombre",
+    ogAlt:
+      "Le nom RideGlow sur fond noir, à côté d'un bandeau LED incliné dont chaque LED porte une couleur différente",
+    ogHeadline: "Chaque LED se pilote seule.",
+    ogSub: "Kit adressable pour moto. Réactif au son, à la vitesse et à l'angle.",
   },
   nav: {
     modes: "Modes",

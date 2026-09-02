@@ -29,5 +29,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Everything except API routes, the back-office, Next internals and files.
-  matcher: ["/((?!api|admin|_next/static|_next/image|favicon.ico|models|.*\\..*).*)"],
+  // `apple-icon` is spelled out because it is the one generated asset with no
+  // extension: without it the tile gets a locale prefix and 404s.
+  matcher: ["/((?!api|admin|apple-icon|_next/static|_next/image|favicon.ico|models|.*\\..*).*)"],
 };

@@ -5,7 +5,10 @@ export const en: Dictionary = {
     title: "RideGlow: addressable RGB LED kit for motorcycles",
     description:
       "Addressable RGB LED kit for motorcycles. Every LED is driven on its own: reactive to sound, speed and lean angle. Fitted in one evening, no drilling.",
-    ogAlt: "A motorcycle lit by addressable LED strips in a dark showroom",
+    ogAlt:
+      "The RideGlow name on black, beside a raked LED strip whose every LED carries a different color",
+    ogHeadline: "Every LED is driven on its own.",
+    ogSub: "Addressable kit for motorcycles. Reactive to sound, speed and lean angle.",
   },
   nav: {
     modes: "Modes",

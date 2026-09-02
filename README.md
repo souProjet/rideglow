@@ -80,6 +80,21 @@ Vercel: import the repo, set the variables above, point a Stripe webhook endpoin
 `charge.refunded`. The two marketing routes are prerendered per locale; `/admin`, the
 success page and the API routes are dynamic.
 
+## Brand assets
+
+The favicon, the Apple touch icon and the social card are all generated, so there is
+nothing to redraw when the copy changes. `src/app/icon.svg` is the mark; `apple-icon.tsx`
+and `(marketing)/[locale]/opengraph-image.tsx` build the raster versions with `next/og`.
+Both card locales are prerendered at build time.
+
+`src/assets/fonts` holds two Archivo instances as `.woff`, under the OFL alongside them.
+They are vendored because satori reads woff but not the woff2 `next/font` produces, and
+because a build that phones Google Fonts is a build that fails offline. They are a
+build-time dependency and never reach the runtime.
+
+Shared colors and the mark's rake live in `src/lib/brand.ts`. `icon.svg` repeats the
+hexes because a static file cannot import them; change one, change both.
+
 ## Legality
 
 Colored auxiliary lighting is prohibited in traffic in most European countries. The
@@ -92,5 +107,6 @@ footer. Keep it that way, and check the rules for any market you add.
 - The company facts the legal pages need. `src/lib/legal.ts` marks each missing
   one `TBD`, the pages render it as a visible gap, and `LEGAL_COMPLETE` keeps
   all three out of the search index until every field is filled.
-- `public/` assets: favicon, OG image.
+- A `favicon.ico`. Browsers that cannot read `icon.svg` get a 404 instead of a
+  fallback; generating a real `.ico` needs an encoder this repo does not have.
 - Stock tracking. The webhook records orders but nothing decrements inventory.

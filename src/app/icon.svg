@@ -1,0 +1,47 @@
+<!--
+  RideGlow mark: a cut of addressable strip, raked at the roadster's fork angle
+  (0.44 rad, from bike-geometry.ts) because the fork leg is one of the three
+  runs the kit actually tapes to.
+
+  Five chips, each a different hue, bleeding past the tile so the run reads as a
+  segment of something longer. Individually colored chips are the one thing that
+  separates an addressable strip from a light bar, so that is the whole mark.
+  The ramp is the one in src/lib/brand.ts, resolved to hex here because a static
+  file cannot import it.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <title>RideGlow</title>
+  <defs>
+    <clipPath id="tile">
+      <rect width="32" height="32" rx="7" />
+    </clipPath>
+    <filter id="bloom" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.2" />
+    </filter>
+    <radialGradient id="haze" cx="50%" cy="50%" r="52%">
+      <stop offset="0%" stop-color="#6054ff" stop-opacity="0.20" />
+      <stop offset="100%" stop-color="#6054ff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <g clip-path="url(#tile)">
+    <rect width="32" height="32" fill="#0a0b0d" />
+    <rect width="32" height="32" fill="url(#haze)" />
+
+    <!-- Bloom pass, then the same chips crisp on top: light, not paint. -->
+    <g filter="url(#bloom)" opacity="0.9">
+      <rect x="6.78" y="25.16" width="7.8" height="4.3" rx="1.5" fill="#3de8ff" transform="rotate(25.2 10.68 27.31)" />
+      <rect x="9.44" y="19.50" width="7.8" height="4.3" rx="1.5" fill="#3d7dff" transform="rotate(25.2 13.34 21.65)" />
+      <rect x="12.10" y="13.85" width="7.8" height="4.3" rx="1.5" fill="#693dff" transform="rotate(25.2 16.00 16.00)" />
+      <rect x="14.76" y="8.20" width="7.8" height="4.3" rx="1.5" fill="#d43dff" transform="rotate(25.2 18.66 10.35)" />
+      <rect x="17.42" y="2.54" width="7.8" height="4.3" rx="1.5" fill="#ff3dbe" transform="rotate(25.2 21.32 4.69)" />
+    </g>
+    <g>
+      <rect x="6.78" y="25.16" width="7.8" height="4.3" rx="1.5" fill="#3de8ff" transform="rotate(25.2 10.68 27.31)" />
+      <rect x="9.44" y="19.50" width="7.8" height="4.3" rx="1.5" fill="#3d7dff" transform="rotate(25.2 13.34 21.65)" />
+      <rect x="12.10" y="13.85" width="7.8" height="4.3" rx="1.5" fill="#693dff" transform="rotate(25.2 16.00 16.00)" />
+      <rect x="14.76" y="8.20" width="7.8" height="4.3" rx="1.5" fill="#d43dff" transform="rotate(25.2 18.66 10.35)" />
+      <rect x="17.42" y="2.54" width="7.8" height="4.3" rx="1.5" fill="#ff3dbe" transform="rotate(25.2 21.32 4.69)" />
+    </g>
+  </g>
+</svg>
