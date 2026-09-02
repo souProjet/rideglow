@@ -8,7 +8,12 @@ import { useConfigurator } from "@/lib/store";
  * The hero's control surface, laid out like the switchgear on a left-hand
  * commodo: the visitor changes the mode before reading a single line of copy.
  */
-export function ModeSwitch({ t }: { t: Dictionary }) {
+/**
+ * `compact` drops the mode blurb. The configurator overlays this on a 44svh
+ * canvas, where the chips, the blurb, the mic button and the swatches together
+ * took ~300px of a 371px canvas and left no bike visible behind them.
+ */
+export function ModeSwitch({ t, compact = false }: { t: Dictionary; compact?: boolean }) {
   const modeId = useConfigurator((s) => s.modeId);
   const setMode = useConfigurator((s) => s.setMode);
   const kitId = useConfigurator((s) => s.kitId);
@@ -28,7 +33,10 @@ export function ModeSwitch({ t }: { t: Dictionary }) {
     <div className="space-y-5">
       {/* Real radio inputs rather than buttons with role="radio": arrow-key
           navigation along the row then comes from the browser. */}
-      <fieldset className="-mx-5 flex snap-x gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      {/* min-w-0 is load-bearing: Chrome's UA sheet gives every fieldset
+          min-inline-size: min-content, which defeats overflow-x and stretched
+          the row to 591px inside a 390px viewport, taking the page with it. */}
+      <fieldset className="-mx-5 flex min-w-0 snap-x gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         <legend className="sr-only">{t.modes.title}</legend>
         {LED_MODES.map((mode) => {
           const isActive = mode.id === modeId;
@@ -71,12 +79,14 @@ export function ModeSwitch({ t }: { t: Dictionary }) {
       </fieldset>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <p
-          key={active.id}
-          className="max-w-md text-pretty text-[0.875rem] leading-relaxed text-chalk-dim"
-        >
-          {t.modes.items[active.id].blurb}
-        </p>
+        {!compact && (
+          <p
+            key={active.id}
+            className="max-w-md text-pretty text-[0.875rem] leading-relaxed text-chalk-dim"
+          >
+            {t.modes.items[active.id].blurb}
+          </p>
+        )}
 
         {modeId === "sound" && (
           <button

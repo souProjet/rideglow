@@ -7,7 +7,10 @@ import Link from "next/link";
 export function Wordmark({ href }: { href: string }) {
   return (
     <Link href={href} className="group flex items-center gap-3" aria-label="RideGlow">
-      <span className="flex items-center gap-[3px]" aria-hidden>
+      {/* Hidden below sm. The strip and the CTA together needed 375px of a
+          320px content box on a 360px phone, and the wordmark is the half that
+          still reads as the brand without it. */}
+      <span className="hidden items-center gap-[3px] sm:flex" aria-hidden>
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <span
             key={i}

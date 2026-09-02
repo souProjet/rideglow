@@ -81,7 +81,7 @@ export function Configurator({ t, locale }: { t: Dictionary; locale: Locale }) {
             />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 sm:p-6">
               <div className="pointer-events-auto">
-                <ModeSwitch t={t} />
+                <ModeSwitch t={t} compact />
               </div>
             </div>
           </div>
