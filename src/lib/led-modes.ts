@@ -51,12 +51,23 @@ export const LED_MODES: readonly LedMode[] = [
     requiresGps: false,
     shade(out, i, n, strip, f) {
       // Each LED owns a slice of the spectrum, low frequencies at the front of
-      // the bike. Brightness is that band; hue climbs with frequency so a bass
-      // hit floods the nose magenta and hats flick the tail cyan.
+      // the bike. Hue climbs with frequency so a bass hit floods the nose
+      // magenta and hats flick the tail cyan.
       const pos = n > 1 ? i / (n - 1) : 0;
       const band = f.bands[Math.min(f.bands.length - 1, (pos * f.bands.length) | 0)] ?? 0;
-      const level = clamp01(band * 0.75 + f.energy * 0.35);
-      out.setHSL(0.9 - pos * 0.42, 0.95, 0.04 + level * 0.5);
+      // Squared, not linear. Mapping the band straight onto lightness put every
+      // LED in the middle of its range and the tape sat there glowing: over
+      // 450 ms it changed 193 sampled pixels, against 13k for breathe. The
+      // square pushes the gaps between hits toward black, which is the contrast
+      // that makes a run read as reacting rather than lit.
+      const attack = band * band;
+      // The kick also travels. A bass transient runs nose to tail twice a
+      // second, so the bike pulses in sequence instead of flashing as one
+      // block, and there is motion on screen even on a flat passage.
+      const head = (f.t * 2.2 + strip * 0.05) % 1;
+      const kick = Math.max(0, 1 - Math.abs(pos - head) * 6);
+      const level = clamp01(attack * 1.6 + f.energy * 0.25 + kick * 0.55);
+      out.setHSL(0.9 - pos * 0.42 - kick * 0.12, 0.95, 0.02 + level * 0.6);
       // Mirror strips beat together rather than drifting apart.
       if (strip % 2 === 1) out.multiplyScalar(0.92);
     },
@@ -68,13 +79,18 @@ export const LED_MODES: readonly LedMode[] = [
     shade(out, i, n, strip, f) {
       const pos = n > 1 ? i / (n - 1) : 0;
       // Light streams backwards, faster as speed climbs: the visual grammar of
-      // motion everyone already reads.
-      const stream = 0.5 + 0.5 * Math.sin((pos * 6 - f.t * (1.5 + f.speed * 7)) * TAU * 0.16);
+      // motion everyone already reads. A comet rather than a sine, because a
+      // sine spends most of its period mid-brightness and the run reads as a
+      // gradient shifting under itself. Raising it to the fourth packs the
+      // light into a short head with a tail behind it, which is what running
+      // lights look like on real tape.
+      const travel = (((pos - f.t * (0.28 + f.speed * 0.9) + strip * 0.09) % 1) + 1) % 1;
+      const comet = travel * travel * travel * travel;
       // Lean lights up the inside of the corner. Even strips are the left side.
       const side = strip % 2 === 0 ? -1 : 1;
       const inside = clamp01(f.lean * side) * 0.55;
       const hue = 0.52 - f.speed * 0.14 + Math.abs(f.lean) * 0.06;
-      out.setHSL(hue, 0.9, 0.06 + stream * 0.28 + inside);
+      out.setHSL(hue, 0.9, 0.05 + comet * 0.42 + inside);
     },
   },
   {
@@ -83,20 +99,29 @@ export const LED_MODES: readonly LedMode[] = [
     requiresGps: false,
     shade(out, i, n, strip, f) {
       const pos = n > 1 ? i / (n - 1) : 0;
-      out.setHSL((pos * 0.55 + f.t * 0.11 + strip * 0.07) % 1, 0.92, 0.42);
+      // Two things move. The rainbow scrolls, at 0.3 rather than the 0.11 it
+      // used to: a full cycle took nine seconds, which is slower than anyone
+      // watches a preview for. And a brighter node travels along with it, so
+      // the mode reads as addressable rather than as a gradient someone painted
+      // on the tape.
+      const hue = (pos * 0.5 + f.t * 0.3 + strip * 0.08) % 1;
+      const node = 0.5 + 0.5 * Math.sin((pos * 2 - f.t * 0.75 + strip * 0.15) * TAU);
+      out.setHSL(hue, 0.92, 0.14 + node * node * 0.36);
     },
   },
   {
     id: "breathe",
     accent: "#ff8a3d",
     requiresGps: false,
-    shade(out, i, n, _strip, f) {
+    shade(out, i, n, strip, f) {
       const pos = n > 1 ? i / (n - 1) : 0;
-      // A slow swell with a lag along the strip, so it inhales nose to tail
-      // instead of blinking as one block.
-      const swell = 0.5 + 0.5 * Math.sin(f.t * 1.5 - pos * 1.1);
+      // A slow swell with a lag along the strip and a second lag between runs,
+      // so it inhales nose to tail and front to back instead of blinking as one
+      // block. Squared, so the trough holds dark and the peak arrives as a
+      // breath rather than a dimmer sweep.
+      const swell = 0.5 + 0.5 * Math.sin(f.t * 1.6 - pos * 1.6 - strip * 0.22);
       f.base.getHSL(hsl);
-      out.setHSL(hsl.h, hsl.s, 0.05 + swell * 0.4);
+      out.setHSL(hsl.h, hsl.s, 0.03 + swell * swell * 0.48);
     },
   },
   {
