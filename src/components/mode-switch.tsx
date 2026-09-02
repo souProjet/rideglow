@@ -36,7 +36,7 @@ export function ModeSwitch({ t }: { t: Dictionary }) {
           return (
             <label
               key={mode.id}
-              className={`flex shrink-0 cursor-pointer snap-start items-center gap-2 rounded-card border px-4 py-2.5 text-[0.8125rem] font-medium transition-all duration-200 ease-[var(--ease-out-expo)] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-35 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-glow ${
+              className={`flex shrink-0 cursor-pointer snap-start items-center gap-2 rounded-card border px-4 py-2.5 text-[0.8125rem] font-medium transition-[border-color,background-color,color,opacity] duration-200 ease-[var(--ease-out-expo)] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-35 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-glow ${
                 isActive
                   ? "border-glow bg-glow-faint text-chalk"
                   : "border-line text-chalk-dim hover:border-line-bright hover:text-chalk"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BuildReadout } from "@/components/funnel/build-readout";
 import { Progress } from "@/components/funnel/progress";
 import { StepBike } from "@/components/funnel/step-bike";
@@ -32,6 +32,16 @@ export function Configurator({ t, locale }: { t: Dictionary; locale: Locale }) {
   const back = useConfigurator((s) => s.back);
   const totals = useTotals();
   const [soldOut, setSoldOut] = useState<ReadonlySet<string>>(() => new Set());
+  const scroller = useRef<HTMLDivElement>(null);
+
+  // Each step is a page as far as the visitor is concerned, so it starts at the
+  // top. Leaving the kit step half-read otherwise drops them into the middle of
+  // the summary. `scrollTo` without a `behavior` defers to the element's own
+  // `scroll-smooth`, which is what lets the reduced-motion rule turn it off.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `step` is the trigger, nothing here reads it
+  useEffect(() => {
+    scroller.current?.scrollTo({ top: 0 });
+  }, [step]);
 
   // The store is created with `skipHydration`, so a returning visitor's saved
   // configuration is pulled in here, after the first render has matched the
@@ -81,14 +91,22 @@ export function Configurator({ t, locale }: { t: Dictionary; locale: Locale }) {
             large screens. Without it the column grows to fit its content and
             the whole page scrolls again, canvas included. */}
         <div className="relative z-20 flex min-h-0 flex-col bg-ink lg:h-full">
-          <div className="flex-1 overflow-y-auto px-5 py-8 sm:px-8 lg:py-10">
+          <div
+            ref={scroller}
+            className="flex-1 scroll-smooth overflow-y-auto px-5 py-8 sm:px-8 lg:py-10"
+          >
             <div className="mx-auto flex max-w-lg flex-col gap-8">
               <Progress t={t} />
               <BuildReadout t={t} locale={locale} />
 
-              {step === "bike" && <StepBike t={t} />}
-              {step === "kit" && <StepKit t={t} locale={locale} soldOut={soldOut} />}
-              {step === "review" && <StepReview t={t} locale={locale} soldOut={soldOut} />}
+              {/* Keyed on the step so the entrance replays on every move. The
+                  remount is wanted: it is also what clears the review step's
+                  payment error when the visitor goes back to change something. */}
+              <div key={step} className="anim-rise">
+                {step === "bike" && <StepBike t={t} />}
+                {step === "kit" && <StepKit t={t} locale={locale} soldOut={soldOut} />}
+                {step === "review" && <StepReview t={t} locale={locale} soldOut={soldOut} />}
+              </div>
             </div>
           </div>
 

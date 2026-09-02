@@ -43,7 +43,7 @@ export function StepKit({
             <label
               key={kit.id}
               className={[
-                "relative rounded-card border p-5 transition-all duration-200 ease-[var(--ease-out-expo)]",
+                "relative rounded-card border p-5 transition-[border-color,background-color,opacity] duration-200 ease-[var(--ease-out-expo)]",
                 "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-glow",
                 locked ? "cursor-not-allowed opacity-50" : "cursor-pointer",
                 selected ? "border-glow bg-glow-faint" : "border-line",

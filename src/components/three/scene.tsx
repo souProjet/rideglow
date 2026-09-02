@@ -57,6 +57,7 @@ function CameraRig({ view, epoch, fit }: { view: ViewId; epoch: number; fit: boo
   const size = useThree((s) => s.size);
   const goal = useRef(new Vector3(...VIEW_POSITIONS.threeQuarter));
   const flying = useRef(false);
+  const placed = useRef(false);
 
   // `epoch` is unused in the body on purpose: it is the signal that the same view
   // was re-picked after a drag, and dropping it would make that click do nothing.
@@ -69,6 +70,16 @@ function CameraRig({ view, epoch, fit }: { view: ViewId; epoch: number; fit: boo
       const hHalf = Math.atan(Math.tan(vFov / 2) * (size.width / size.height));
       const needed = BIKE_LENGTH / 2 / Math.tan(hHalf);
       goal.current.setLength(MathUtils.clamp(needed * 1.12, 3.6, 8));
+    }
+
+    // The first pass places the camera rather than flying it there. Fitting the
+    // bike to the frame is a move of a meter or so, and running it as a flight
+    // meant the configurator opened by lurching backwards the moment the canvas
+    // painted, before the visitor had asked for anything.
+    if (!placed.current) {
+      placed.current = true;
+      camera.position.copy(goal.current);
+      return;
     }
 
     flying.current = true;
@@ -117,13 +128,28 @@ function FrameBias({ bias }: { bias: number }) {
 function Spill({ average }: { average: Color }) {
   const front = useRef<PointLight>(null);
   const rear = useRef<PointLight>(null);
+  const tint = useMemo(() => new Color(0, 0, 0), []);
+  const level = useRef(0);
 
-  useFrame(() => {
-    front.current?.color.copy(average);
-    rear.current?.color.copy(average);
-    const level = 0.9 + (average.r + average.g + average.b) * 2.1;
-    if (front.current) front.current.intensity = level;
-    if (rear.current) rear.current.intensity = level * 0.8;
+  useFrame((_, delta) => {
+    // The mean is recomputed from the strip every frame, and chase and sound
+    // move it hard from one frame to the next. Copying it straight onto the
+    // lamps made the floor strobe, so they chase it instead. On delta, so the
+    // chase takes the same time at 60 and at 120 Hz.
+    const k = 1 - Math.exp(-9 * delta);
+    tint.lerp(average, k);
+    // Starting both at black also gives the lamps the strip's own ignition:
+    // the pool of light comes up as the LEDs do, rather than before them.
+    level.current += (0.9 + (tint.r + tint.g + tint.b) * 2.1 - level.current) * k;
+
+    if (front.current) {
+      front.current.color.copy(tint);
+      front.current.intensity = level.current;
+    }
+    if (rear.current) {
+      rear.current.color.copy(tint);
+      rear.current.intensity = level.current * 0.8;
+    }
   });
 
   return (
@@ -297,7 +323,10 @@ export function Scene({
         <Vignette offset={0.3} darkness={0.68} />
       </EffectComposer>
 
-      <AdaptiveDpr pixelated />
+      {/* Not `pixelated`: when the frame budget slips, dropping the resolution
+          with smoothing reads as the image going soft for a moment, where
+          nearest-neighbour reads as the render breaking. */}
+      <AdaptiveDpr />
     </>
   );
 }

@@ -60,6 +60,11 @@
     background: var(--ink);
     color-scheme: dark;
     -webkit-text-size-adjust: 100%;
+    /* The header nav points at anchors on the same page. Without these the
+       browser teleports there, and lands with the heading under the fixed
+       header. The reduced-motion block below turns the easing back off. */
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 1.5rem);
   }
 
   body {
@@ -106,6 +111,27 @@
   ::-webkit-scrollbar-thumb:hover {
     background: var(--line-bright);
   }
+
+  /* A <details> opens to its own height instead of popping. `interpolate-size`
+     is what makes `auto` an animatable value; where it is missing the whole
+     block never applies and the answer appears the way it does now. */
+  @supports (interpolate-size: allow-keywords) {
+    :root {
+      interpolate-size: allow-keywords;
+    }
+
+    details::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size 0.32s var(--ease-out-expo),
+        content-visibility 0.32s allow-discrete;
+    }
+
+    details[open]::details-content {
+      block-size: auto;
+    }
+  }
 }
 
 @layer components {
@@ -149,12 +175,33 @@
     opacity: 0.035;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+
+  /* One entrance for the whole site. Anything swapped into place, a funnel step
+     above all, arrives this way, so the site keeps a single motion signature
+     rather than a different fade per component. Opacity and transform only:
+     both are composited, so the entrance never touches layout. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 0.6rem, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .anim-rise {
+    animation: rise 0.42s var(--ease-out-expo) both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
-  *::after {
+  *::after,
+  /* Not matched by the universal selector, so it is named. */
+  details::details-content {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

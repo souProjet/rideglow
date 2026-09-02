@@ -29,7 +29,7 @@ export function StepBike({ t }: { t: Dictionary }) {
           return (
             <label
               key={bike.id}
-              className={`cursor-pointer rounded-card border p-4 transition-all duration-200 ease-[var(--ease-out-expo)] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-glow ${
+              className={`cursor-pointer rounded-card border p-4 transition-[border-color,background-color] duration-200 ease-[var(--ease-out-expo)] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-glow ${
                 selected
                   ? "border-glow bg-glow-faint"
                   : "border-line hover:border-line-bright hover:bg-ink-raised"
