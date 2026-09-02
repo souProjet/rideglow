@@ -12,6 +12,7 @@ import {
   priceCart,
   SHIPPING_COUNTRIES,
   skusForSelection,
+  summarizeBuild,
 } from "@/lib/catalog";
 import { soldOut, stockLevels } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
 
   const t = getDictionary(locale);
   const totals = priceCart({ bikeId, kitId, addonIds });
+  // The receipt quotes what this kit dresses on this bike, not what the bike
+  // could take: the Stripe line item is the one number a buyer keeps.
+  const build = summarizeBuild({ bikeId, kitId, addonIds });
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
     {
@@ -69,7 +73,7 @@ export async function POST(request: NextRequest) {
         unit_amount: kit.priceCents,
         product_data: {
           name: `RideGlow ${t.kits.items[kit.id].name}`,
-          description: `${t.bikes.items[bike.id].name} (${bike.ledCount} ${t.bikes.ledCount})`,
+          description: `${t.bikes.items[bike.id].name} (${build.ledCount} ${t.bikes.ledCount})`,
         },
       },
     },

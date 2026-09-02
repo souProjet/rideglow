@@ -2,11 +2,17 @@
 
 import { PixelRow } from "@/components/pixel-row";
 import type { Dictionary } from "@/i18n";
-import { BIKES } from "@/lib/catalog";
+import { BIKES, bikeLedCount } from "@/lib/catalog";
 import { useConfigurator } from "@/lib/store";
 
-/** Every card's row is drawn to the longest kit, so the lit part compares. */
-const MAX_LEDS = Math.max(...BIKES.map((b) => b.ledCount));
+/**
+ * The card's row is a comparison bar, not a literal LED count: every card draws
+ * the same number of cells and lights the share this bike takes of the longest
+ * build. Drawing one cell per LED needed 307 px of minimum width in a 182 px
+ * card, and the row leaked out past the panel on desktop.
+ */
+const ROW_CELLS = 34;
+const MAX_LEDS = Math.max(...BIKES.map(bikeLedCount));
 
 export function StepBike({ t }: { t: Dictionary }) {
   const bikeId = useConfigurator((s) => s.bikeId);
@@ -45,8 +51,8 @@ export function StepBike({ t }: { t: Dictionary }) {
               />
 
               <PixelRow
-                count={MAX_LEDS}
-                lit={selected ? bike.ledCount : 0}
+                count={ROW_CELLS}
+                lit={selected ? Math.round((bikeLedCount(bike) / MAX_LEDS) * ROW_CELLS) : 0}
                 className="mb-4 opacity-90"
               />
 
@@ -73,7 +79,7 @@ export function StepBike({ t }: { t: Dictionary }) {
                     {t.bikes.ledCount}
                   </span>
                   <span className="whitespace-nowrap text-[0.75rem] text-chalk" data-numeric>
-                    {bike.ledCount}
+                    {bikeLedCount(bike)}
                   </span>
                 </span>
               </span>

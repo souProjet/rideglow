@@ -34,11 +34,21 @@ export type BikeFamily = {
   id: BikeId;
   /** Drives the procedural silhouette in the showroom. */
   silhouette: "roadster" | "sport" | "trail" | "custom";
-  /** Strip runs the kit ships for this geometry, in millimeters. */
+  /**
+   * One flank's runs, nose to tail, in millimeters. A kit dresses both flanks,
+   * and the lengths are the measured arc of each authored path in
+   * `bike-models.ts` (sport, trail) or `bike-geometry.ts` (roadster, custom),
+   * so the figure a buyer reads is the tape the run actually consumes.
+   *
+   * Every run sits on a part, not on a line drawn beside the bike: a fender
+   * lip, a fairing edge, a crankcase cover, the subframe loop. That is where
+   * tape goes on a real bike, and it is why the fender and case runs are arcs.
+   */
   stripRuns: { label: string; mm: number }[];
-  /** Total addressable LEDs at 60 LED/m, rounded to the strip's cut marks. */
-  ledCount: number;
 };
+
+/** A kit dresses both flanks, so every run in `stripRuns` ships twice. */
+export const SIDES = 2;
 
 export type BikeId = "roadster" | "sport" | "trail" | "custom";
 
@@ -47,53 +57,57 @@ export const BIKES: readonly BikeFamily[] = [
     id: "roadster",
     silhouette: "roadster",
     stripRuns: [
-      { label: "fork", mm: 300 },
-      { label: "underTank", mm: 620 },
-      { label: "belly", mm: 400 },
-      { label: "swingarm", mm: 380 },
-      { label: "tail", mm: 360 },
+      { label: "frontFender", mm: 582 },
+      { label: "fork", mm: 554 },
+      { label: "engineCase", mm: 643 },
+      { label: "swingarm", mm: 492 },
+      { label: "subframe", mm: 296 },
     ],
-    ledCount: 123,
   },
   {
     id: "sport",
     silhouette: "sport",
     stripRuns: [
-      { label: "fork", mm: 580 },
-      { label: "underFairing", mm: 570 },
-      { label: "belly", mm: 490 },
-      { label: "swingarm", mm: 320 },
-      { label: "tail", mm: 450 },
+      { label: "frontFender", mm: 230 },
+      { label: "fork", mm: 331 },
+      // A full fairing hides the cases, so the sport spends that run on the
+      // fairing's own lower lip instead.
+      { label: "fairingEdge", mm: 484 },
+      { label: "subframe", mm: 448 },
+      { label: "rearHugger", mm: 208 },
     ],
-    ledCount: 144,
   },
   {
     id: "trail",
     silhouette: "trail",
     stripRuns: [
-      { label: "fork", mm: 610 },
-      { label: "underTank", mm: 580 },
-      { label: "belly", mm: 330 },
+      { label: "frontFender", mm: 339 },
+      { label: "fork", mm: 612 },
+      { label: "engineCase", mm: 628 },
       // A trail bike carries its silencer over the swingarm, so the rear run
       // goes on the frame rail where it is actually visible.
-      { label: "frameRail", mm: 570 },
-      { label: "tail", mm: 480 },
+      { label: "frameRail", mm: 563 },
+      { label: "subframe", mm: 484 },
     ],
-    ledCount: 154,
   },
   {
     id: "custom",
     silhouette: "custom",
     stripRuns: [
-      { label: "fork", mm: 320 },
-      { label: "frameRail", mm: 820 },
-      { label: "belly", mm: 400 },
-      { label: "swingarm", mm: 340 },
-      { label: "rearFender", mm: 340 },
+      { label: "frontFender", mm: 634 },
+      { label: "fork", mm: 518 },
+      { label: "engineCase", mm: 643 },
+      { label: "swingarm", mm: 813 },
+      { label: "subframe", mm: 296 },
     ],
-    ledCount: 133,
   },
 ] as const;
+
+/** Addressable LEDs across both flanks once every run is dressed. */
+export function bikeLedCount(bike: BikeFamily): number {
+  const mm = bike.stripRuns.reduce((sum, run) => sum + run.mm, 0) * SIDES;
+  return Math.round((mm / 1000) * LEDS_PER_METER);
+}
 
 export type KitId = "core" | "signature";
 
@@ -107,10 +121,17 @@ export type Kit = {
   recommended: boolean;
 };
 
+/**
+ * Kit prices track the strip count, at the same rate the `extension` add-on
+ * charges: 19 EUR per meter of tape with its connectors. A run averages 492 mm
+ * across the four families, so a pair of runs (one per side) is worth about
+ * 19 EUR. Core gained two strips over the three-run build and Signature four,
+ * which is the +20 and +40 below, rounded to a 9.
+ */
 export const KITS: readonly Kit[] = [
   {
     id: "core",
-    priceCents: 14900,
+    priceCents: 16900,
     // Fork, tank and swingarm, both sides. `stripRuns` is one side, so a kit
     // ships twice the runs it covers: Core takes the first three.
     strips: 6,
@@ -120,7 +141,7 @@ export const KITS: readonly Kit[] = [
   },
   {
     id: "signature",
-    priceCents: 22900,
+    priceCents: 26900,
     // All five runs, both sides. This is the build the showroom renders.
     strips: 10,
     features: ["app", "sound", "spectrum", "ip67", "gps", "lean", "indicators"],
@@ -162,14 +183,22 @@ export type BuildSummary = {
 export function summarizeBuild(selection: CartSelection): BuildSummary {
   const bike = getBike(selection.bikeId);
   if (!bike) throw new Error(`Unknown bike: ${selection.bikeId}`);
+  const kit = getKit(selection.kitId);
+  if (!kit) throw new Error(`Unknown kit: ${selection.kitId}`);
 
-  const baseMm = bike.stripRuns.reduce((sum, run) => sum + run.mm, 0);
+  // The kit decides how many of the bike's runs get dressed, and it dresses
+  // them symmetrically: Core takes the first three on each flank, Signature all
+  // five. Summarizing the bike's whole run plan regardless of kit is what put
+  // "5 brins" next to "6 bandes" on the same screen.
+  const covered = bike.stripRuns.slice(0, kit.strips / SIDES);
   const extended = selection.addonIds.includes("extension");
+  const totalMm =
+    covered.reduce((sum, run) => sum + run.mm, 0) * SIDES + (extended ? EXTENSION_MM : 0);
 
   return {
-    ledCount: bike.ledCount + (extended ? (EXTENSION_MM / 1000) * LEDS_PER_METER : 0),
-    totalMm: baseMm + (extended ? EXTENSION_MM : 0),
-    runs: bike.stripRuns.length + (extended ? 1 : 0),
+    ledCount: Math.round((totalMm / 1000) * LEDS_PER_METER),
+    totalMm,
+    runs: covered.length * SIDES + (extended ? 1 : 0),
   };
 }
 

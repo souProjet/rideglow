@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 import { getDictionary } from "@/i18n";
 import { isLocale, LOCALES } from "@/i18n/config";
 import { BRAND, chipColor, MARK_RAKE, MARK_RAKE_DEG } from "@/lib/brand";
-import { BIKES } from "@/lib/catalog";
+import { BIKES, bikeLedCount } from "@/lib/catalog";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -50,7 +50,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
   const { locale } = await params;
   const t = getDictionary(isLocale(locale) ? locale : "fr");
 
-  const counts = BIKES.map((bike) => bike.ledCount);
+  const counts = BIKES.map(bikeLedCount);
   const spec = [
     `${Math.min(...counts)}–${Math.max(...counts)} LED`,
     t.modes.items.sound.name,

@@ -242,32 +242,63 @@ export function getStripRuns(s: Silhouette, measured?: readonly StripPath[]): St
   );
 }
 
+/** Points along a circle, for a run that follows a fender or a case cover. */
+function arcPoints(
+  cx: number,
+  cy: number,
+  r: number,
+  from: number,
+  to: number,
+  n: number,
+): [number, number][] {
+  return Array.from({ length: n }, (_, i) => {
+    const angle = from + ((to - from) * i) / (n - 1);
+    return [cx + Math.cos(angle) * r, cy + Math.sin(angle) * r];
+  });
+}
+
 /**
- * The five runs a Signature kit ships, ordered nose to tail. They are spread
- * across four heights on purpose: fork, tank, belly and swingarm all read as
- * separate lines from the side, where three runs on the upper half of the bike
- * read as one broken line.
+ * The five runs a Signature kit ships, ordered nose to tail.
+ *
+ * Each one sits on a part a fitter can actually reach and stick tape to: the
+ * underside of the front fender, the fork leg, a ring around the crankcase
+ * cover, the swingarm, the subframe loop under the tail. Two of them are arcs
+ * because the parts are round, and a straight run cut across a fender or a case
+ * cover reads as a stray wire rather than a fitted strip.
+ *
+ * They are also spread across four heights on purpose: three runs on the upper
+ * half of the bike read as one broken line from the side.
  */
 function deriveStripPaths(s: Silhouette): StripPath[] {
   const a = getAnchors(s);
-  const [tankX, tankY] = a.tank;
   const [engineX, engineY] = a.engine;
   const [tailX, tailY] = a.tail;
-  const tl = s.tankLength;
-  const th = s.tankHeight;
 
   // Every z is the half-depth of the part the run is taped to, plus the
   // standoff, so each run lies on its own panel. The masses do not share a
   // width: the tank slab is 1.9 x bodyZ deep and the swingarm 1.7 x its own
   // radius, so one shared offset put some runs inside the bike and others in
   // mid-air. `bike.tsx` is the source of these ratios.
-  const tankZ = s.bodyZ * 0.95;
   const engineZ = s.bodyZ * 0.85;
   const tailZ = s.bodyZ * 0.575;
   const swingZ = s.swingarmZ + s.swingarmR * 0.85;
   const forkZ = s.forkZ + s.forkR;
+  // A fender shell clears the tire it covers: half the tire, plus the shell.
+  const fenderZ = s.frontWidth / 2 + 0.014;
 
   const runs: { points: [number, number][]; z: number }[] = [
+    {
+      // Under the front fender, in the gap between the shell and the tire.
+      // `bike.tsx` lathes that shell at frontRadius + 0.035 over phi 0.46pi to
+      // 1.20pi, which after the mesh's own X rotation is 7 degrees below the
+      // front of the axle, over the crown, to 126 degrees. The run is centered
+      // in that sweep with 17 degrees of margin at each end, and sits 25 mm out
+      // from the tire so its 14 mm of tape clears the shell instead of being
+      // swept through it: at the shell's own radius, half the strip rendered
+      // inside the fender.
+      points: arcPoints(a.frontAxle[0], a.frontAxle[1], s.frontRadius + 0.025, 0.164, 1.909, 6),
+      z: fenderZ,
+    },
     {
       // Fork leg: axle up to the yoke, the run that flashes for indicators.
       // Sampled along the leg's own axis, because the leg is raked and a run
@@ -282,27 +313,10 @@ function deriveStripPaths(s: Silhouette): StripPath[] {
       z: forkZ,
     },
     {
-      // The seam along the bottom of the tank, rising at the back where the
-      // panel meets the seat. Set inside the profile rather than under it: run
-      // below the tank and the strip hangs in the air over the frame spar.
-      points: [
-        [tankX + tl * 0.4, tankY - th * 0.2],
-        [tankX + tl * 0.05, tankY - th * 0.34],
-        [tankX - tl * 0.34, tankY - th * 0.2],
-        [tankX - tl * 0.46, tankY + th * 0.06],
-      ],
-      z: tankZ,
-    },
-    {
-      // Engine case, low on the flank. Not along the bottom edge: the case is
-      // beveled there, so a run on the edge faces the road and disappears from
-      // every view the configurator offers.
-      points: [
-        [engineX + 0.18, engineY - 0.075],
-        [engineX + 0.09, engineY - 0.145],
-        [engineX - 0.05, engineY - 0.155],
-        [engineX - 0.17, engineY - 0.1],
-      ],
+      // A closed ring around the crankcase cover, which is the one part of a
+      // naked bike's engine that faces the viewer square on. Nine points, the
+      // last landing back on the first, so the loop closes.
+      points: arcPoints(engineX + 0.02, engineY - 0.02, 0.105, 0, Math.PI * 2, 9),
       z: engineZ,
     },
     {
@@ -318,8 +332,8 @@ function deriveStripPaths(s: Silhouette): StripPath[] {
       z: swingZ,
     },
     {
-      // Tail cowl flank, seat end backwards. Sits on the narrowest slab on the
-      // bike, which is why it gets its own z rather than the tank's.
+      // Subframe loop, under the tail unit, seat end backwards. Sits on the
+      // narrowest slab on the bike, which is why it gets its own z.
       points: [
         [tailX + 0.14, tailY - 0.05],
         [tailX - 0.02, tailY - 0.04],

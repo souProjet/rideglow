@@ -64,6 +64,27 @@ sits on, in fitted meters. Leave `strips` out and the rig falls back to the runs
 derived from the procedural silhouette, which are solved for the placeholder and
 land in mid-air beside a scanned bike.
 
+### Where a run goes
+
+A run sits on a part a fitter can reach and stick tape to, not on a line drawn
+beside the bike. Every family carries five, ordered nose to tail, and the labels
+in `stripRuns` (`src/lib/catalog.ts`) are what the funnel prints:
+
+| Run | Part | Notes |
+|-----|------|-------|
+| `frontFender` | under the fender, over the tire | an arc, because the part is round |
+| `fork` | fork leg, axle to yoke | stop at the yoke: above it nothing leans outboard |
+| `engineCase` / `fairingEdge` | crankcase cover, or the fairing's lower lip | a faired bike hides its cases, so it spends this run on the edge |
+| `swingarm` / `frameRail` | swingarm, or the rail above it | a rail when the silencer hides the arm in profile |
+| `subframe` | the loop under the tail | |
+| `rearHugger` | under the rear hugger | only where the model has one |
+
+The two arcs are arcs on purpose. A straight run cut across a fender or a case
+cover reads as a stray wire rather than fitted tape. On the procedural bikes the
+fender arc has to stay inside the shell `bike.tsx` actually lathes, and 25 mm
+clear of it: the tape is 14 mm wide in the radial direction, so a run authored at
+the shell's own radius renders half-buried in it.
+
 Measure them, do not eyeball them. The scratchpad scripts written for the first
 two models reproduce `BikeModelMesh`'s fit exactly (yaw, then uniform scale to
 `wheelbase + frontRadius + rearRadius`, then translate so the bike is centered
@@ -71,6 +92,10 @@ on x and z with its lowest vertex at y = 0) and then query the mesh:
 
 - `parts.py <glb> <yaw> <target>`: fitted world bounds per node. Start here to
   find the swingarm, the fork and the tail.
+- `place.py <glb> <yaw> <target> "x:y,x:y" [r]`: like `probe.py`, but names the
+  four nodes contributing most to each hit, with their own half-widths. This is
+  the one that answers "what part is this run on?", and the answer is what the
+  code comment should record.
 - `slice.py <glb> <yaw> <target> <Node,Node>`: per-x-column y range and max
   half-width for named nodes. This is what a run's z values come from.
 - `probe.py <glb> <yaw> <target> "x:y,x:y"`: max half-width near each point, or

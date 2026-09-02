@@ -49,6 +49,17 @@ export const BIKE_MODELS: Partial<Record<BikeId, BikeModel>> = {
     yaw: Math.PI / 2,
     // Axles land at (0.72, 0.28) front and (-0.71, 0.30) rear once fitted.
     strips: [
+      // Under the front fender, over the tire. `Object_17` is the only surface
+      // up here and it is narrow, 4 to 6 cm of half-width: behind x = 0.60 the
+      // probe starts returning the fairing nose at 0.111 instead, which is why
+      // the run stops there rather than reaching the yoke.
+      [
+        [0.62, 0.585, 0.058],
+        [0.68, 0.6, 0.044],
+        [0.74, 0.6, 0.038],
+        [0.8, 0.585, 0.043],
+        [0.845, 0.552, 0.042],
+      ],
       // Fork leg, axle end to yoke. It stops at y = 0.62: above the yoke the
       // only surface left leaning outboard is the screen surround, and a run
       // carried up there hung in front of the windscreen in three-quarter
@@ -61,20 +72,14 @@ export const BIKE_MODELS: Partial<Record<BikeId, BikeModel>> = {
         [0.61, 0.56, 0.161],
         [0.59, 0.62, 0.152],
       ],
-      // Fairing flank, along the character line and widening toward the nose.
-      [
-        [-0.06, 0.68, 0.094],
-        [0.06, 0.7, 0.109],
-        [0.18, 0.72, 0.156],
-        [0.3, 0.72, 0.183],
-        [0.42, 0.7, 0.205],
-        [0.5, 0.68, 0.195],
-      ],
-      // Lower fairing. It starts at x = -0.12, not at the swingarm: behind that
-      // the SPY has no lower bodywork at all, and a probe at 22 mm returns
-      // nothing at (-0.20, 0.26). Measured at 45 mm it looked continuous, but
-      // the width it reported came from a frame tube 4 cm away and the run
-      // rendered as a wire strung under the bike.
+      // The fairing's lower lip, which is where tape goes on a faired bike: the
+      // cases behind it are not visible from any angle the configurator offers,
+      // so the sport spends this run on the edge instead of around a cover.
+      // It starts at x = -0.12, not at the swingarm: behind that the SPY has no
+      // lower bodywork at all, and a probe at 22 mm returns nothing at
+      // (-0.20, 0.26). Measured at 45 mm it looked continuous, but the width it
+      // reported came from a frame tube 4 cm away and the run rendered as a
+      // wire strung under the bike.
       [
         [-0.12, 0.26, 0.166],
         [-0.04, 0.26, 0.17],
@@ -84,17 +89,10 @@ export const BIKE_MODELS: Partial<Record<BikeId, BikeModel>> = {
         [0.28, 0.29, 0.184],
         [0.36, 0.31, 0.198],
       ],
-      // Swingarm, axle end forward. The arm both rises and narrows toward the
-      // pivot, so the last point sits 4 cm inboard of the first.
-      [
-        [-0.71, 0.33, 0.181],
-        [-0.6, 0.34, 0.181],
-        [-0.48, 0.39, 0.171],
-        [-0.4, 0.37, 0.14],
-      ],
-      // Tail. It has to ride this high because the SPY's tail is a cantilever:
-      // below y = 0.78 the probe returns nothing from x = -0.62 to -0.30, a
-      // 30 cm hole where a run at seat height crossed open air.
+      // Subframe loop, under the tail unit. It has to ride this high because
+      // the SPY's tail is a cantilever: below y = 0.78 the probe returns
+      // nothing from x = -0.62 to -0.30, a 30 cm hole where a run at seat
+      // height crossed open air.
       [
         [-0.62, 0.9, 0.07],
         [-0.54, 0.87, 0.1],
@@ -102,6 +100,15 @@ export const BIKE_MODELS: Partial<Record<BikeId, BikeModel>> = {
         [-0.38, 0.78, 0.125],
         [-0.3, 0.74, 0.115],
         [-0.22, 0.7, 0.098],
+      ],
+      // Rear hugger, arcing over the tire. Same node as the tail: on this model
+      // the tail unit and the hugger are one panel. It ends at x = -0.64
+      // because the next station back, (-0.70, 0.63), is EMPTY.
+      [
+        [-0.46, 0.53, 0.072],
+        [-0.52, 0.58, 0.085],
+        [-0.58, 0.61, 0.086],
+        [-0.64, 0.63, 0.077],
       ],
     ],
   },
@@ -113,6 +120,19 @@ export const BIKE_MODELS: Partial<Record<BikeId, BikeModel>> = {
     licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
     // Axles land at (0.78, 0.34) front and (-0.71, 0.32) rear once fitted.
     strips: [
+      // Under the front fender, on `Object_10`. The shell tapers hard toward
+      // the nose because the beak flares behind it: 12 cm of half-width at the
+      // back of the arc, 5.5 cm over the tire. Above y = 0.72 the probe is
+      // EMPTY, so this is the fender's own crown.
+      [
+        [0.64, 0.69, 0.124],
+        [0.7, 0.71, 0.101],
+        [0.76, 0.72, 0.089],
+        [0.82, 0.72, 0.058],
+        [0.87, 0.71, 0.055],
+        [0.92, 0.69, 0.071],
+        [0.96, 0.66, 0.076],
+      ],
       // Fork leg, axle to lower yoke. Nearly constant width: the tube is a
       // tube, and the beak beside it is not what the run is taped to.
       [
@@ -122,26 +142,20 @@ export const BIKE_MODELS: Partial<Record<BikeId, BikeModel>> = {
         [0.52, 0.85, 0.14],
         [0.46, 0.97, 0.142],
       ],
-      // Tank shroud, seat panel forward. The shroud flares hard: it is 13 cm
-      // wide at the seat and 28 cm at the radiator, so a run held at one width
-      // buries its front half inside the bodywork.
+      // A closed ring around the crankcase cover, the run the sport cannot
+      // carry. Every point on it lands on `Object_183` at 18 to 22 cm of
+      // half-width, so the loop stays on one part the whole way round instead
+      // of stepping between the case, the shroud and the header.
       [
-        [-0.12, 0.79, 0.133],
-        [0.0, 0.8, 0.169],
-        [0.12, 0.85, 0.196],
-        [0.24, 0.88, 0.246],
-        [0.36, 0.9, 0.276],
-        [0.46, 0.92, 0.246],
-      ],
-      // Belly, along the engine cases. Bounded at both ends by things that are
-      // not bodywork: the muffler owns x = -0.79 to -0.24 out to z = 0.296, and
-      // ahead of x = 0.16 the only surface left is the header pipe, 5 cm wide.
-      [
-        [-0.18, 0.25, 0.167],
-        [-0.1, 0.25, 0.17],
-        [-0.02, 0.26, 0.177],
-        [0.06, 0.26, 0.13],
-        [0.14, 0.28, 0.11],
+        [0.16, 0.45, 0.215],
+        [0.131, 0.521, 0.21],
+        [0.06, 0.55, 0.179],
+        [-0.011, 0.521, 0.214],
+        [-0.04, 0.45, 0.214],
+        [-0.011, 0.379, 0.183],
+        [0.06, 0.35, 0.184],
+        [0.131, 0.379, 0.215],
+        [0.16, 0.45, 0.215],
       ],
       // Frame rail and side cover, not the swingarm. The muffler spans
       // x = -0.79 to -0.24 up to y = 0.573 and stands 30 cm off the
@@ -159,7 +173,9 @@ export const BIKE_MODELS: Partial<Record<BikeId, BikeModel>> = {
         [0.03, 0.56, 0.182],
         [0.1, 0.55, 0.171],
       ],
-      // Tail, under the grab rails. The z steps out 7 cm between the first two
+      // Subframe loop, under the grab rails. This bike has no rear hugger
+      // modeled: the whole arc over the rear tire, from (-0.42, 0.56) round to
+      // (-0.90, 0.65), probes EMPTY. The z steps out 7 cm between the first two
       // points because the rear rack is narrow and the seat panel below it is
       // not.
       [
