@@ -16,6 +16,7 @@ import { Color, MathUtils, type PointLight, Vector3 } from "three";
 import { Bike } from "@/components/three/bike";
 import { BikeModelMesh } from "@/components/three/bike-model";
 import { LedRig } from "@/components/three/led-rig";
+import { ShowroomSet } from "@/components/three/set";
 import type { AudioSource } from "@/components/three/use-audio";
 import { getSilhouette } from "@/lib/bike-geometry";
 import { getBikeModel } from "@/lib/bike-models";
@@ -192,7 +193,10 @@ export function Scene({
 
   return (
     <>
-      <fog attach="fog" args={["#07080a", 7, 22]} />
+      {/* Starts past the bike and ends inside the cove, so the set sinks into
+          the dark at its far side instead of reading as a hard cylinder, and
+          the subject itself is never fogged. */}
+      <fog attach="fog" args={["#07080a", 10, 30]} />
       <PerspectiveCamera makeDefault fov={30} position={VIEW_POSITIONS.threeQuarter} />
       <FrameBias bias={frameBias} />
       <OrbitControls
@@ -260,6 +264,8 @@ export function Scene({
       <directionalLight position={[-2.5, 1.2, -3]} intensity={0.9} color="#9fc0ff" />
 
       <group position={[0, GROUND_Y, 0]}>
+        <ShowroomSet />
+
         {model ? (
           // The generated silhouette stands in while the GLB streams, so the
           // hero never paints an empty floor.
@@ -289,10 +295,11 @@ export function Scene({
           color="#000000"
         />
 
-        {/* Wide enough that its far edge never crosses the frame: at 16 m the
-            boundary cut a hard diagonal across the hero. Fog closes the rest. */}
+        {/* Only has to reach the foot of the cove, which now hides its edge:
+            the 44 m plane this replaced existed to keep the boundary out of
+            frame back when there was nothing behind the bike to stop it. */}
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[44, 44]} />
+          <planeGeometry args={[26, 26]} />
           <MeshReflectorMaterial
             resolution={512}
             blur={[420, 140]}
