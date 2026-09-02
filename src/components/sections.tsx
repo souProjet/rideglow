@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import type { Dictionary } from "@/i18n";
 import type { Locale } from "@/i18n/config";
+import { ADDONS, FREE_SHIPPING_THRESHOLD_CENTS, KITS, SHIPPING_CENTS } from "@/lib/catalog";
+import { formatPrice } from "@/lib/format";
 
 function SectionHead({ eyebrow, title, lede }: { eyebrow?: string; title: string; lede?: string }) {
   return (
@@ -40,6 +42,109 @@ export function SpecSheet({ t }: { t: Dictionary }) {
             </div>
           ))}
         </dl>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The price, on the one page a search engine is allowed to index.
+ *
+ * It used to exist only at step two of the configurator, which is `noindex`: a
+ * visitor had to commit to a funnel to find out what the kit costs, and Google
+ * never saw a figure at all. Both the prices and the feature lists are read
+ * from the catalog and the funnel's own dictionary rather than restated here,
+ * so this section and the checkout cannot quote different numbers.
+ *
+ * It also answers `#kit` in the header nav, which until now pointed at an
+ * anchor that did not exist anywhere on the site.
+ */
+export function Pricing({ t, locale }: { t: Dictionary; locale: Locale }) {
+  return (
+    <section id="kit" className="border-t border-line px-5 py-24 sm:px-8 sm:py-32">
+      <div className="mx-auto max-w-[86rem]">
+        <SectionHead eyebrow={t.pricing.eyebrow} title={t.pricing.title} lede={t.pricing.lede} />
+
+        <div className="mt-14 grid gap-4 lg:grid-cols-2">
+          {KITS.map((kit) => {
+            const copy = t.kits.items[kit.id];
+            return (
+              <article
+                key={kit.id}
+                className={`relative flex flex-col rounded-card border p-8 ${
+                  kit.recommended ? "border-glow bg-glow-faint" : "border-line"
+                }`}
+              >
+                {kit.recommended && (
+                  <span
+                    className="absolute -top-2 left-8 bg-glow px-2 py-0.5 text-[0.5625rem] font-semibold uppercase tracking-[0.14em] text-ink"
+                    data-numeric
+                  >
+                    {t.kits.recommended}
+                  </span>
+                )}
+
+                <h3 className="text-[1.25rem] font-semibold text-chalk">{copy.name}</h3>
+                <p className="mt-2 text-[0.9375rem] leading-relaxed text-chalk-dim">{copy.blurb}</p>
+
+                <p className="mt-6 flex flex-wrap items-baseline gap-x-2.5">
+                  <span className="type-display text-[2.75rem] leading-none" data-numeric>
+                    {formatPrice(kit.priceCents, locale)}
+                  </span>
+                  <span className="text-[0.8125rem] text-chalk-dim">{t.pricing.vat}</span>
+                  <span className="text-[0.75rem] text-chalk-dim" data-numeric>
+                    {kit.strips} {t.kits.strips}
+                  </span>
+                </p>
+
+                <ul className="mt-7 flex flex-col gap-2 border-t border-line pt-6">
+                  {kit.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-start gap-2 text-[0.875rem] text-chalk-dim"
+                    >
+                      <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-glow" />
+                      {t.kits.features[feature as keyof typeof t.kits.features]}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* `mt-auto` rather than a fixed spacer: Core lists four
+                    features and Signature seven, so the two buttons only line
+                    up if the gap absorbs the difference. */}
+                <div className="mt-auto pt-8">
+                  <Button
+                    href={`/${locale}/configurateur`}
+                    variant={kit.recommended ? "primary" : "ghost"}
+                  >
+                    {t.pricing.cta}
+                  </Button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="mt-10 flex flex-col gap-x-10 gap-y-3 border-t border-line pt-8 text-[0.875rem] text-chalk-dim sm:flex-row sm:flex-wrap">
+          <p>
+            {t.pricing.freeShippingFrom}{" "}
+            <span data-numeric>{formatPrice(FREE_SHIPPING_THRESHOLD_CENTS, locale)}</span>,{" "}
+            {t.pricing.otherwise} <span data-numeric>{formatPrice(SHIPPING_CENTS, locale)}</span>.
+          </p>
+          <p>{t.review.reassurance.returns}</p>
+          <p>{t.review.reassurance.warranty}</p>
+        </div>
+
+        <p className="mt-3 text-[0.875rem] text-chalk-dim">
+          {t.pricing.addonsLead}{" "}
+          {ADDONS.map((addon, i) => (
+            <span key={addon.id}>
+              {i > 0 && " · "}
+              {t.kits.addons[addon.id].name}{" "}
+              <span data-numeric>{formatPrice(addon.priceCents, locale)}</span>
+            </span>
+          ))}
+        </p>
       </div>
     </section>
   );

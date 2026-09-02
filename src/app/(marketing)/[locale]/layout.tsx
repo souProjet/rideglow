@@ -5,10 +5,9 @@ import "@/app/globals.css";
 import { GlowSync } from "@/components/glow-sync";
 import { SiteHeader } from "@/components/site/header";
 import { getDictionary } from "@/i18n";
-import { isLocale, LOCALES } from "@/i18n/config";
+import { DEFAULT_LOCALE, isLocale, LOCALES } from "@/i18n/config";
 import { archivo, martianMono } from "@/lib/fonts";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { SITE_URL } from "@/lib/site";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -29,7 +28,13 @@ export async function generateMetadata({
     description: t.meta.description,
     alternates: {
       canonical: `/${locale}`,
-      languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])),
+      languages: {
+        ...Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])),
+        // Without it a crawler outside fr and en has no listed fallback and
+        // picks one itself. This is the same target `proxy.ts` redirects an
+        // unmatched Accept-Language to, so the two agree.
+        "x-default": `/${DEFAULT_LOCALE}`,
+      },
     },
     openGraph: {
       type: "website",

@@ -26,6 +26,7 @@ export const fr = {
     hint: "Change de mode. C'est le rendu réel, pas une vidéo.",
     cta: "Configurer mon kit",
     ctaSecondary: "Voir ce qu'il y a dans le carton",
+    priceFrom: "À partir de",
     loading: "Allumage du showroom",
     fallback:
       "Le showroom 3D a besoin de WebGL. Active l'accélération matérielle ou passe sur un autre navigateur pour voir le rendu en direct.",
@@ -169,6 +170,16 @@ export const fr = {
     back: "Retour",
     editBike: "Changer de moto",
     editKit: "Changer de kit",
+  },
+  pricing: {
+    eyebrow: "Tarifs",
+    title: "Deux kits, un seul boîtier",
+    lede: "Le prix complet, avant d'avoir à configurer quoi que ce soit. Même boîtier et même application dans les deux : ce qui change, c'est le nombre de bandes et le module inertiel.",
+    vat: "TTC",
+    cta: "Configurer ce kit",
+    freeShippingFrom: "Livraison offerte dès",
+    otherwise: "sinon",
+    addonsLead: "Options :",
   },
   spec: {
     title: "Dans le carton",

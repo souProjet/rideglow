@@ -2,15 +2,24 @@ import type { Locale } from "@/i18n/config";
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
-/** Minor units in, localized currency string out. */
+/**
+ * Minor units in, localized currency string out. A round amount drops the
+ * cents, so the catalog reads "149 €" rather than "149,00 €".
+ *
+ * That decision is part of the cache key, not just of the constructor call:
+ * keyed on the locale alone, the first amount formatted in the process fixed
+ * the digits for every later one, and shipping came out as "6,9 €" behind a
+ * kit price of "149 €".
+ */
 export function formatPrice(cents: number, locale: Locale): string {
-  const key = `${locale}:eur`;
+  const round = cents % 100 === 0;
+  const key = `${locale}:eur:${round}`;
   let formatter = formatters.get(key);
   if (!formatter) {
     formatter = new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-GB", {
       style: "currency",
       currency: "EUR",
-      minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
+      minimumFractionDigits: round ? 0 : 2,
       maximumFractionDigits: 2,
     });
     formatters.set(key, formatter);

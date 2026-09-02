@@ -1,11 +1,17 @@
 import { notFound } from "next/navigation";
 import { ModeSwitch } from "@/components/mode-switch";
-import { Faq, FinalCta, Install, SpecSheet } from "@/components/sections";
+import { Faq, FinalCta, Install, Pricing, SpecSheet } from "@/components/sections";
 import { SiteFooter } from "@/components/site/footer";
 import { ShowroomCanvas } from "@/components/three/showroom-loader";
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/i18n";
 import { isLocale } from "@/i18n/config";
+import { FREE_SHIPPING_THRESHOLD_CENTS, KITS } from "@/lib/catalog";
+import { formatPrice } from "@/lib/format";
+import { homeJsonLd, serializeJsonLd } from "@/lib/structured-data";
+
+/** The entry price, so the hero quotes the catalog rather than a copy of it. */
+const FROM_CENTS = Math.min(...KITS.map((kit) => kit.priceCents));
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -14,6 +20,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
+      {/* The price, the return policy and the four objections, in the form a
+          crawler reads. See `structured-data.ts` for what is deliberately
+          absent from it. */}
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: the only way to emit a JSON-LD script body; the payload is escaped in `serializeJsonLd`
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(homeJsonLd(locale, t)) }}
+      />
       <section id="modes" className="grain relative min-h-[100svh] overflow-hidden">
         <ShowroomCanvas
           className="absolute inset-0"
@@ -46,6 +60,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 {t.hero.ctaSecondary}
               </Button>
             </div>
+
+            {/* The entry price next to the button that starts the funnel. A
+                visitor who has to reach step two of the configurator to find
+                out what this costs is a visitor deciding whether to keep
+                going without the one number the decision turns on. */}
+            <p className="text-[0.875rem] text-chalk-dim">
+              {t.hero.priceFrom}{" "}
+              <span className="font-semibold text-chalk" data-numeric>
+                {formatPrice(FROM_CENTS, locale)}
+              </span>
+              {" · "}
+              {t.pricing.freeShippingFrom}{" "}
+              <span data-numeric>{formatPrice(FREE_SHIPPING_THRESHOLD_CENTS, locale)}</span>
+            </p>
           </div>
 
           <div className="pointer-events-auto space-y-4">
@@ -59,6 +87,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       <SpecSheet t={t} />
+      {/* After the contents, before the fitting guide: a buyer wants to know
+          what they get, then what it costs, and only then how it goes on. */}
+      <Pricing t={t} locale={locale} />
       <Install t={t} />
       <Faq t={t} />
       <FinalCta t={t} locale={locale} />

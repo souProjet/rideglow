@@ -24,6 +24,7 @@ export const en: Dictionary = {
     hint: "Switch modes. This is the real render, not a video.",
     cta: "Configure my kit",
     ctaSecondary: "See what's in the box",
+    priceFrom: "From",
     loading: "Powering up the showroom",
     fallback:
       "The 3D showroom needs WebGL. Turn on hardware acceleration or use another browser to see it live.",
@@ -163,6 +164,16 @@ export const en: Dictionary = {
     back: "Back",
     editBike: "Change bike",
     editKit: "Change kit",
+  },
+  pricing: {
+    eyebrow: "Pricing",
+    title: "Two kits, one controller",
+    lede: "The full price, before you have to configure anything. Same controller and same app in both: what changes is the number of strips and the motion sensor.",
+    vat: "incl. VAT",
+    cta: "Configure this kit",
+    freeShippingFrom: "Free shipping over",
+    otherwise: "otherwise",
+    addonsLead: "Add-ons:",
   },
   spec: {
     title: "In the box",
