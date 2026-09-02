@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.9"
+    "node": ">=20.18"
   },
   "scripts": {
     "dev": "next dev",
@@ -13,7 +13,7 @@
     "lint": "biome check .",
     "format": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "db:setup": "psql \"$DATABASE_URL\" -f db/schema.sql"
+    "db:setup": "node --env-file-if-exists=.env.local scripts/db-setup.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.1.0",

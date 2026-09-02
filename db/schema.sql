@@ -4,7 +4,7 @@
 -- three things the Stripe dashboard cannot tell us — has it shipped, with which
 -- tracking number, and against which bike/kit configuration.
 --
--- Apply with: psql "$DATABASE_URL" -f db/schema.sql
+-- Apply with: npm run db:setup
 
 create table if not exists orders (
   -- Stripe Checkout session id. Also the idempotency key for webhook replays.

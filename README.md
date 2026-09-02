@@ -97,7 +97,7 @@ npm run build      # production build
 npm run lint       # biome check
 npm run format     # biome format --write
 npm run typecheck  # tsc --noEmit
-npm run db:setup   # psql "$DATABASE_URL" -f db/schema.sql
+npm run db:setup   # applies db/schema.sql, idempotent
 ```
 
 ## Deploy
