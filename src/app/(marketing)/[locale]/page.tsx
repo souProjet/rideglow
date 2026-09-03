@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { ModeSwitch } from "@/components/mode-switch";
+import { RealDemo } from "@/components/real-demo";
 import { Faq, FinalCta, Install, Pricing, SpecSheet } from "@/components/sections";
 import { SiteFooter } from "@/components/site/footer";
 import { ShowroomCanvas } from "@/components/three/showroom-loader";
@@ -86,6 +87,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
+      {/* Straight after the 3D hero, because that is where the doubt is: the
+          bike above is rendered, and the visitor's next thought is what the
+          thing looks like on a real machine at night. */}
+      <RealDemo t={t} />
       <SpecSheet t={t} />
       {/* After the contents, before the fitting guide: a buyer wants to know
           what they get, then what it costs, and only then how it goes on. */}

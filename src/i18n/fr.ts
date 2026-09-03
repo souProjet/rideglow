@@ -185,6 +185,21 @@ export const fr = {
     otherwise: "sinon",
     addonsLead: "Options :",
   },
+  realDemo: {
+    eyebrow: "Filmé au téléphone",
+    title: "La vraie vie",
+    lede: "Pas un rendu. Un roadster sur un parking : les bandes le long du cadre, autour du carter, sous la boucle arrière, et le mode Son qui suit les enceintes.",
+    notes: [
+      "Mode Son : les bandes suivent la musique, sans réglage.",
+      "Une seule prise, pas de montage.",
+      "Cadre complet, étalonnage couleur uniquement.",
+    ],
+    alt: "Un roadster de nuit sur un parking, bandes LED magenta allumées le long du cadre, autour du carter et sous la boucle arrière.",
+    soundOn: "Activer le son",
+    soundOff: "Couper le son",
+    play: "Lancer la vidéo",
+    caption: "Son d'origine",
+  },
   spec: {
     title: "Dans le carton",
     lede: "Rien à souder, rien à percer. Un tournevis et une soirée.",

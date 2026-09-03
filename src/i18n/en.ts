@@ -176,6 +176,21 @@ export const en: Dictionary = {
     otherwise: "otherwise",
     addonsLead: "Add-ons:",
   },
+  realDemo: {
+    eyebrow: "Shot on a phone",
+    title: "The real thing",
+    lede: "Not a render. A roadster in a car park: strips along the frame, around the engine case, under the rear loop, and the sound mode following the speakers.",
+    notes: [
+      "Sound mode: the strips follow the music, nothing tuned.",
+      "One take, no editing.",
+      "Full frame, color grading only.",
+    ],
+    alt: "A roadster at night in a car park, magenta LED strips lit along the frame, around the engine case and under the rear loop.",
+    soundOn: "Turn the sound on",
+    soundOff: "Mute",
+    play: "Play the video",
+    caption: "Original audio",
+  },
   spec: {
     title: "In the box",
     lede: "Nothing to solder, nothing to drill. One screwdriver and one evening.",
