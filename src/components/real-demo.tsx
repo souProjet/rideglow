@@ -21,9 +21,10 @@ export function RealDemo({ t }: { t: Dictionary }) {
   const [playing, setPlaying] = useState(false);
 
   // Autoplay only once the section is on screen, and never against a reduced
-  // motion preference: 2 MB fetched during the hero's first paint buys
-  // nothing, and a loop that starts itself is exactly what that preference is
-  // asking us not to do.
+  // motion preference. The clip runs its full 28 seconds, so it is 8.5 MB:
+  // fetching that during the hero's first paint would cost more than the
+  // section is worth, and a loop that starts itself is exactly what that
+  // preference is asking us not to do. It pauses again on the way out.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -55,12 +56,12 @@ export function RealDemo({ t }: { t: Dictionary }) {
 
   return (
     <section className="border-t border-line bg-ink px-5 py-24 sm:px-8 sm:py-32">
-      {/* The clip is 9:16 because the phone that shot it was, and it is shown
-          whole. Cutting a 16:9 band out of it to match the rest of the page
-          threw away two thirds of the picture, then upscaled what was left:
-          the bike came out cropped and soft, which is the opposite of what a
-          proof panel is for. A portrait column beside the copy costs the page
-          nothing and keeps the frame at its own shape. */}
+      {/* The clip is 9:16 because the phone that shot it was, and it runs
+          whole: the full frame, the full take, no cut. Trimming it to a
+          six-second 16:9 band threw away two thirds of the picture and then
+          upscaled what was left, which is the opposite of what a proof panel
+          is for. A portrait column beside the copy costs the page nothing and
+          keeps the frame at its own shape. */}
       <div className="mx-auto grid max-w-[86rem] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,23rem)] lg:gap-20">
         <div className="max-w-2xl space-y-4">
           <p className="type-eyebrow flex items-center gap-3">
